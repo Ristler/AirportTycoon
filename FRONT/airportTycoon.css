@@ -1,0 +1,48 @@
+.sivu {
+    width: 70%;
+    margin: auto;
+  
+}
+
+html {
+    font-family: 'Courier New', Courier, monospace;
+   
+}
+main {
+    background-color: blue;
+    padding:1rem;
+    display: flex;
+    flex-wrap: wrap;
+
+}
+body {
+    background-color: gray;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    margin: 0;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+}
+header {
+
+    display: flex;
+    justify-content: flex-end;
+}
+header h1 {
+
+    background-color: #687C4B;
+    position: fixed;
+    width: 70%;
+    top: -30px;
+    color: #ffffff;
+}
+
+nav {
+
+    position: fixed;
+    width: 55%;
+
+    
+}
+
