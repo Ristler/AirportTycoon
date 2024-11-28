@@ -1,0 +1,286 @@
+@font-face {
+    font-family: Poppins;
+    src: url("/fonts/Poppins-Regular.ttf") format("truetype");
+}
+.sivu {
+    width: 90%;
+    margin: auto;
+  
+}
+
+html {
+    font-family:'Poppins', sans-serif;
+    scroll-behavior: smooth;
+}
+
+header {
+
+    display: flex;
+    justify-content: flex-end;
+}
+header h1 {
+
+    background-color: #0d47a1;
+    position: fixed;
+    width: 90%;
+    top: -25px;
+  
+    color: floralwhite;
+    
+
+}
+
+header h1 img {
+    position: relative;
+    height: auto;
+    width: 50px;
+    top: 10px
+}
+
+
+nav {
+    position: fixed;
+    width: 30%;
+    
+}
+ul {
+    display: flex;
+    list-style-type: none;
+    justify-content: space-evenly;
+    background-color: #8BAE4A;
+    padding: 0px;
+    margin: 0;
+}
+main {
+    background-color: #1565c0;
+    padding:1rem;
+    display: flex;
+    flex-wrap: wrap;
+    
+}
+body {
+    background-color: #1976d2;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    margin: 0;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+}
+
+p {
+    padding: 40px 60px;
+    text-align: center;
+    
+}
+
+li {
+    width: calc(100% / 3)
+}
+
+li a {
+    background-color: #748a52;
+    color: floralwhite;
+    width: 100%;
+    display: block;
+    text-align: center;
+    line-height: 3rem;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #7f9360;
+}
+
+
+section {
+    background-color:#2559a9;
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    padding: 200px 5px;
+}
+section h3 {
+    text-align: center;
+    width: 100%
+    
+}
+
+
+
+section h2 {
+    width: 100%;
+    text-align: center;
+   
+}
+
+img {
+    border-radius: 8px 8px 0 0;
+    width: 100%;
+    height: auto;
+}
+section img {
+    display: flex;
+    text-align: center;
+    height: auto;
+    width: 50%;
+
+}
+
+article img {
+    display: flex;
+    text-align: center;
+    height: auto;
+    width: 100%;
+
+}
+
+
+
+figcaption {
+    padding: 1rem;
+    display:block;
+    word-wrap: break-word;
+    
+}
+
+section figure {
+   
+    margin: 0 1rem 1rem 0;
+    border: none;
+    border-radius: 8px;
+ 
+}
+
+.product figure {
+    margin: 0 1rem 1rem 0;
+    border: none;
+    border-radius: 8px;
+    background-color: #b8c972;
+
+}
+
+.desc {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: auto;
+    border: none;
+}
+
+
+
+article {
+    width: calc(100% / 3);
+    padding: 1rem;  
+    box-sizing: border-box;
+    text-align: center;
+
+}
+aside {
+    background-color: blanchedalmond;
+    width: 100%
+
+}
+.contactsection h2 {
+    text-align: left;
+}
+.contactsection p {
+    text-align: left;
+}
+iframe {
+    max-width: 100%;
+    width: 600px;
+    height: 400px;
+    margin-left: 60px;
+    
+}
+
+footer {
+    background-color: #0d47a1;
+    color: floralwhite;
+    padding: 1rem;
+    text-align: center;
+}
+
+
+@media screen and (max-width: 768px) {
+    .sivu {
+        width: 70%;
+        margin: auto;
+     
+    }
+
+    main {
+        background-color: #9eb96b;
+        padding:1rem;
+        display: flex;
+        flex-wrap: wrap;
+        
+    }
+
+  
+    nav {
+
+        position: fixed;
+        width: 55%;
+  
+        
+    }
+    article {
+   
+        width: 100%;
+        padding: 1rem;  
+        box-sizing: border-box;
+        text-align: center;
+    
+    }
+
+
+
+    iframe {
+        display: flex;
+        max-width: 100%;
+        width:250px;
+        height: 300px;
+        margin-left: 0px;
+        
+    }
+
+
+    section figure {
+        display:block;
+        text-align: center;
+        color:black;
+    }
+ 
+    
+    figcaption {
+        padding: 1rem;
+        display:block;
+        word-wrap: break-word;
+        
+    }
+    header h1 {
+
+        background-color: #748a52;
+        position: fixed;
+        width: 70%;
+        top: -30px;
+      
+        color: transparent
+        
+    
+    }
+    p {
+        padding: 40px 60px;
+        text-align: center;
+        overflow-wrap: break-word;
+    word-break: break-all;
+
+        
+    }
+}
