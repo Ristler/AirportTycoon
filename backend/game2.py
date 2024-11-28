@@ -12,6 +12,40 @@ tilanteet = tilanteet.tilanteet("peli")
 choices = []
 
 #tallenna pelaaja clienttiin
+class kayttis:
+    def __init__(self,lista):
+        self.id = lista[0]
+        self.nimi = lista[1]
+        self.raha = lista[2]
+        self.laina = lista[3]
+        self.erapaiva = lista[4]
+        self.paiva = lista[5]
+        self.rating = lista[7]
+
+
+
+
+class invetaariooooo:
+    def __init__(self, konelista, kauppalista):
+        self.lista = konelista
+        self.kauppalista = kauppalista
+
+class lentokone(invetaariooooo):
+    def __init__(self, lista, id, tyyppi, määrä, kunto, maara, hinta, bensa, efficiency):
+        super().__init__(lista)
+        self.id = id
+        self.tyyppi = tyyppi
+        self.maara = maara
+        self.kunto = kunto
+
+
+
+
+class kauppa(invetaariooooo):
+    def __init__(self, lista, id, tyyppi, määrä, kunto, maara, hinta, bensa, efficiency):
+        super().__init__(lista)
+
+
 user = {
     "id": 0,
     "nimi": "",
@@ -35,9 +69,9 @@ lentokone = {
 connection = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
-    database='uusi_peli',
-    user='käyttäjä',
-    password='salasana',
+    database='peli',
+    user='root',
+    password='1234',
     autocommit=True
 )
 cursor = connection.cursor()
@@ -64,14 +98,7 @@ def login():
                 print("User not found or password is wrong.")
             elif results:
                 print("löytyy")
-                for row in results:
-                    user["id"] = row[0]
-                    user["nimi"] = row[1]
-                    user["raha"] = row[2]
-                    user["laina"] = row[3]
-                    user["eräpäivä"] = row[4]
-                    user["päivä"] = row[5]
-                    user["rating"] = row[7]
+                pelaaja = kayttis(results[0])
                 interface()
                 break
 
