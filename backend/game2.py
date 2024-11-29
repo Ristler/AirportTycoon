@@ -12,17 +12,17 @@ import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
 choices = []
-pelaaja = None
+#lista = [0,0,0,0,0,0,0]
 #tallenna pelaaja clienttiin
 class User:
-    def __init__(self,lista):
-        self.id = lista[0]
-        self.nimi = lista[1]
-        self.raha = lista[2]
-        self.laina = lista[3]
-        self.erapaiva = lista[4]
-        self.paiva = lista[5]
-        self.rating = lista[7]
+    def __init__(self,id, nimi, raha, laina, erapaiva, paiva, rating):
+        self.id = id
+        self.nimi =nimi
+        self.raha = raha
+        self.laina = laina
+        self.erapaiva = erapaiva
+        self.paiva = paiva
+        self.rating = rating
 
 
 lentokone = {
@@ -60,10 +60,39 @@ def login():
                     print("User not found or password is wrong.")
                 elif results:
                     print("löytyy")
-                    pelaaja = User(results[0])
+                    for row in results:
+                        global pelaaja
+                        pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
+                    print (pelaaja)
                     interface()
                     break
+
+
 def createPlayer():
+    raha = 800000
+    paiva = date.today()
+    rating = 0.5
+    print("Welcome to airport tycoon!")
+    print("Start your journey by entering your name")
+
+    while True:
+        playerName = input("Enter your name: ")
+
+        if not isNameTaken(playerName):
+            password = input("Enter your password: ")
+            sql = "INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(sql, (playerName, raha, password, paiva, rating))
+
+            sql2 = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
+            cursor.execute(sql2, (playerName, password))
+            results = cursor.fetchall()
+            pelaaja = User(results[0])
+
+            interface()
+            break
+
+        else:
+            print("Username is already taken")
         raha = 800000
         paiva = date.today()
         rating = 0.5
@@ -474,7 +503,7 @@ def Otalainaa():
 #tarkistaa ja maksaa lainan
 def tarkistalaina():
 
-    if pelaaja.eräpäivä is None or pelaaja.erapaiva  == '0000-00-00':
+    if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
         return
     if pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
         print("|||||tänään on viimeinen päivä maksaa lainat pois!|||||")
@@ -497,6 +526,9 @@ def tarkistalaina():
 
 
 def interface():
+    temp = vars(pelaaja)
+    for item in temp:
+        print(temp[item])
     while(True):
         pelaaja.paiva += timedelta(days=1)
         print("Tänään on: ", pelaaja.paiva)
@@ -547,5 +579,5 @@ def interface():
                     cursor.close()
                     exit()
 
-User.login()
+login()
 
