@@ -1,18 +1,20 @@
 from random import random
 from types import NoneType
+from datetime import date
 
 from geopy.distance import geodesic as gd
 import random
 
 
 import mysql.connector
+from flask import Flask, request, Response
 import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
 choices = []
 
 #tallenna pelaaja clienttiin
-class kayttis:
+class User:
     def __init__(self,lista):
         self.id = lista[0]
         self.nimi = lista[1]
@@ -22,40 +24,106 @@ class kayttis:
         self.paiva = lista[5]
         self.rating = lista[7]
 
+    def updateUser(self):
+        userID = self.id
+        sql = f"SELECT * FROM `pelaaja` WHERE id = ({userID})"
 
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        print(results)
+        if results:
+            for row in results:
 
+                return
 
-class invetaariooooo:
+    def createPlayer(self):
+        raha = 800000
+        paiva = date.today()
+        rating = 0.5
+        print("Welcome to airport typhoon!")
+        print("Start your journey by entering your name")
+
+        while True:
+            playerName = input("Enter your name: ")
+
+            if isNameTaken(playerName) == False:
+                password = input("Enter your password: ")
+                sql = f"INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(sql, (playerName, raha, password, paiva, rating))
+
+                sql2 = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
+                cursor.execute(sql2, (playerName, password))
+                results = cursor.fetchall()
+                pelaaja = User(results)
+                """"for row in results:
+                    user["id"] = row[0]
+                    user["nimi"] = row[1]
+                    user["raha"] = row[2]
+                    user["laina"] = row[3]
+                    user["eräpäivä"] = row[4]
+                    user["päivä"] = row[5]
+                    user["rating"] = row[7]"""
+
+                interface()
+                break
+
+            elif isNameTaken(playerName) == True:
+                print("Username is already taken")
+
+    def login(self):
+        print("Welcome to airport typhoon!")
+        print("Are you a new player, or do you want to sign in?")
+        userInput = int(input("Sign in (1) New user(2): "))
+        if not userInput == 1 and not userInput == 2:
+            print("Invalid command reboot the game!")
+            return
+        if userInput == 2:
+            self.createPlayer()
+
+        if userInput == 1:
+            while True:
+                userInput = input("Username: ")
+                passwordInput = input("Password: ")
+                sql = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
+                cursor.execute(sql, (userInput, passwordInput))
+                results = cursor.fetchall()
+                print(results)
+                if not results:
+                    print("User not found or password is wrong.")
+                elif results:
+                    print("löytyy")
+                    pelaaja = User(results[0])
+                    interface()
+                    break
+
+class Inventory:
     def __init__(self, konelista, kauppalista):
         self.lista = konelista
         self.kauppalista = kauppalista
 
-class lentokone(invetaariooooo):
+class Lentokone(Inventory):
+    def __init__(self,lista, tiedot):
+        super().__init__(lista)
+        self.id = tiedot[0]
+        self.tyyppi = tiedot[1]
+        self.maara = tiedot[2]
+        self.kunto = tiedot[3]
+        self.hinnat = tiedot[4]
+        self.bensa  = tiedot[5]
+        self.efficiency = tiedot[6]
+        self.saapumispvm = tiedot[7]
+        self.location = tiedot[8]
+
+
+
+class Store(Inventory):
     def __init__(self, lista, id, tyyppi, määrä, kunto, maara, hinta, bensa, efficiency):
         super().__init__(lista)
-        self.id = id
-        self.tyyppi = tyyppi
-        self.maara = maara
-        self.kunto = kunto
 
 
 
 
-class kauppa(invetaariooooo):
-    def __init__(self, lista, id, tyyppi, määrä, kunto, maara, hinta, bensa, efficiency):
-        super().__init__(lista)
-
-
-user = {
-    "id": 0,
-    "nimi": "",
-    "raha": 0,
-    "rating": 0.0,
-    "laina": 0,
-    "eräpäivä": None,
-    "päivä": None
-}
-lentokone = {
+"""lentokone = {
     "id" : 0,
     "tyyppi" : "",
     "määrä" : 0,
@@ -65,7 +133,7 @@ lentokone = {
     "efficiency" : 0,
     "saapumispvm" : 0,
     "location": ""
-}
+}"""
 connection = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
@@ -76,31 +144,7 @@ connection = mysql.connector.connect(
 )
 cursor = connection.cursor()
 
-def login():
-    print("Welcome to airport typhoon!")
-    print("Are you a new player, or do you want to sign in?")
-    userInput = int(input("Sign in (1) New user(2): "))
-    if not userInput == 1 and not userInput == 2:
-        print("Invalid command reboot the game!")
-        return
-    if userInput == 2:
-        createPlayer()
 
-    if userInput == 1:
-        while True:
-            userInput = input("Username: ")
-            passwordInput = input("Password: ")
-            sql = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
-            cursor.execute(sql, (userInput, passwordInput))
-            results = cursor.fetchall()
-            print(results)
-            if not results:
-                print("User not found or password is wrong.")
-            elif results:
-                print("löytyy")
-                pelaaja = kayttis(results[0])
-                interface()
-                break
 
 def isNameTaken(playerName):
     sql = f"SELECT nimi FROM `pelaaja`"
@@ -115,43 +159,6 @@ def isNameTaken(playerName):
 
 from datetime import timedelta
 
-def createPlayer():
-
-    from datetime import date
-
-    raha = 800000
-    paiva = date.today()
-    rating = 0.5
-    print("Welcome to airport typhoon!")
-    print("Start your journey by entering your name")
-
-    while True:
-        playerName = input("Enter your name: ")
-
-        if isNameTaken(playerName) == False:
-            password = input("Enter your password: ")
-            sql = f"INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(sql, (playerName, raha, password, paiva, rating))
-
-            sql2 = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
-            cursor.execute(sql2, (playerName, password))
-            results = cursor.fetchall()
-
-            for row in results:
-                user["id"] = row[0]
-                user["nimi"] = row[1]
-                user["raha"] = row[2]
-                user["laina"] = row[3]
-                user["eräpäivä"] = row[4]
-                user["päivä"] = row[5]
-                user["rating"] = row[7]
-
-
-            interface()
-            break
-
-        elif isNameTaken(playerName) == True:
-            print("Username is already taken")
 
 def Tulostus(data):
     line = '\u2550'*79
@@ -172,7 +179,7 @@ def prepare():
     print("Matkustajat nousevat koneeseen..")
     määränpää,bensa = Haetaanmaaranpaa(lentokone["bensa"], lentokone["efficiency"])
     if(määränpää == 0):
-        return;
+        return
     print("Määränpää:", määränpää, "Bensankulutus:", bensa)
 
     indeksi = 0
@@ -261,13 +268,13 @@ def ListaaLentokoneet():
                 print(resultss)
 
                 for row in resultss:
-                    lentokone["id"] = row[0]
-                    lentokone["tyyppi"] = row[1]
-                    lentokone["määrä"] = row[2]
-                    lentokone["kunto"] = row[3]
-                    lentokone["hinta"] = row[4]
-                    lentokone["bensa"] = row[5]
-                    lentokone["efficiency"] = row[6]
+                    Lentokone["id"] = row[0]
+                    Lentokone["tyyppi"] = row[1]
+                    Lentokone["määrä"] = row[2]
+                    Lentokone["kunto"] = row[3]
+                    Lentokone["hinta"] = row[4]
+                    Lentokone["bensa"] = row[5]
+                    Lentokone["efficiency"] = row[6]
                 ##TÄHÄ SE PREPARE FUNCTION EHK KU ON VALINNU LENTOKONEEN, NYT LAITOIN VAA INTERFACE ET VOI TESTAA
 
             elif inputt not in x:
@@ -279,7 +286,7 @@ def ListaaLentokoneet():
         except ValueError:
             print("damn kirjoita NUMERO.....")
             break
-        return lentokone
+        return Lentokone
 
 
 
@@ -292,7 +299,7 @@ def planebrokey(kone, asiakkaat, pelaajaid):
     kunto = kunto - 5
     sql = f"UPDATE lentokone_inventory set kunto = {kunto} where lentokone_id = {kone['id']}"
     cursor.execute(sql)
-    lentokone["kunto"] = lentokone["kunto"] - 5
+    Lentokone["kunto"] = Lentokone["kunto"] - 5
 
     rikki_randomi = random.random()
     if kunto < 60:
@@ -329,6 +336,7 @@ def updateUser():
     results = cursor.fetchall()
     print(results)
     if results:
+        """
         for row in results:
             user["id"] = row[0]
             user["nimi"] = row[1]
@@ -338,7 +346,7 @@ def updateUser():
             user["päivä"] = row[5]
             user["rating"] = row[7]
             print("UPDATUSER:", row[2])
-            return
+            return"""
 
 
 def getPlane(id):
