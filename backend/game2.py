@@ -12,7 +12,7 @@ import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
 choices = []
-
+pelaaja = None
 #tallenna pelaaja clienttiin
 class User:
     def __init__(self,lista):
@@ -24,61 +24,29 @@ class User:
         self.paiva = lista[5]
         self.rating = lista[7]
 
-    def updateUser(self):
-        userID = self.id
-        sql = f"SELECT * FROM `pelaaja` WHERE id = ({userID})"
 
-        cursor.execute(sql)
-        results = cursor.fetchall()
-        print(results)
-        if results:
-            for row in results:
+lentokone = {
+    "id" : 0,
+    "tyyppi" : "",
+    "määrä" : 0,
+    "kunto" : 0,
+    "hinta" : 0,
+    "bensa" : 0,
+    "efficiency" : 0,
+    "saapumispvm" : 0,
+    "location": ""
+}
 
-                return
-
-    def createPlayer(self):
-        raha = 800000
-        paiva = date.today()
-        rating = 0.5
-        print("Welcome to airport typhoon!")
-        print("Start your journey by entering your name")
-
-        while True:
-            playerName = input("Enter your name: ")
-
-            if isNameTaken(playerName) == False:
-                password = input("Enter your password: ")
-                sql = f"INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(sql, (playerName, raha, password, paiva, rating))
-
-                sql2 = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
-                cursor.execute(sql2, (playerName, password))
-                results = cursor.fetchall()
-                pelaaja = User(results)
-                """"for row in results:
-                    user["id"] = row[0]
-                    user["nimi"] = row[1]
-                    user["raha"] = row[2]
-                    user["laina"] = row[3]
-                    user["eräpäivä"] = row[4]
-                    user["päivä"] = row[5]
-                    user["rating"] = row[7]"""
-
-                interface()
-                break
-
-            elif isNameTaken(playerName) == True:
-                print("Username is already taken")
-
-    def login(self):
-        print("Welcome to airport typhoon!")
+        
+def login():
+        print("Welcome to airport tycoon!")
         print("Are you a new player, or do you want to sign in?")
         userInput = int(input("Sign in (1) New user(2): "))
         if not userInput == 1 and not userInput == 2:
-            print("Invalid command reboot the game!")
+            print("Invalid command, reboot the game!")
             return
         if userInput == 2:
-            self.createPlayer()
+            createPlayer()
 
         if userInput == 1:
             while True:
@@ -95,24 +63,72 @@ class User:
                     pelaaja = User(results[0])
                     interface()
                     break
+def createPlayer():
+        raha = 800000
+        paiva = date.today()
+        rating = 0.5
+        print("Welcome to airport tycoon!")
+        print("Start your journey by entering your name")
 
+        while True:
+            playerName = input("Enter your name: ")
+
+            if isNameTaken(playerName) == False:
+                password = input("Enter your password: ")
+                sql = f"INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(sql, (playerName, raha, password, paiva, rating))
+
+                sql2 = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
+                cursor.execute(sql2, (playerName, password))
+                results = cursor.fetchall()
+                pelaaja = User(results[0])
+                """"for row in results:
+                    user["id"] = row[0]
+                    user["nimi"] = row[1]
+                    user["raha"] = row[2]
+                    user["laina"] = row[3]
+                    pelaaja.erapaiva = row[4]
+                    user["päivä"] = row[5]
+                    user["rating"] = row[7]"""
+
+                interface()
+                break
+
+            elif isNameTaken(playerName) == True:
+                print("Username is already taken")
+
+def updateUser():
+        userID = pelaaja.id
+        sql = f"SELECT * FROM `pelaaja` WHERE id = ({userID})"
+
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        print(results)
+        if results:
+            row = results[0]
+            pelaaja.nimi = row[1]
+            pelaaja.raha = row[2]
+            pelaaja.laina = row[3]
+            pelaaja.erapaiva = row[4]
+            pelaaja.paiva = row[5]
+            pelaaja.rating = row[7]
+            return
+def isNameTaken(playerName):
+        sql = f"SELECT nimi FROM `pelaaja`"
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        for i in result:
+            if i[0] == playerName:
+                return True
+        else:
+            return False
 class Inventory:
     def __init__(self, konelista, kauppalista):
         self.lista = konelista
         self.kauppalista = kauppalista
 
-class Lentokone(Inventory):
-    def __init__(self,lista, tiedot):
-        super().__init__(lista)
-        self.id = tiedot[0]
-        self.tyyppi = tiedot[1]
-        self.maara = tiedot[2]
-        self.kunto = tiedot[3]
-        self.hinnat = tiedot[4]
-        self.bensa  = tiedot[5]
-        self.efficiency = tiedot[6]
-        self.saapumispvm = tiedot[7]
-        self.location = tiedot[8]
+
 
 
 
@@ -146,16 +162,6 @@ cursor = connection.cursor()
 
 
 
-def isNameTaken(playerName):
-    sql = f"SELECT nimi FROM `pelaaja`"
-    cursor.execute(sql)
-    result = cursor.fetchall()
-
-    for i in result:
-        if i[0] == playerName:
-            return True
-    else:
-        return False
 
 from datetime import timedelta
 
@@ -183,7 +189,7 @@ def prepare():
     print("Määränpää:", määränpää, "Bensankulutus:", bensa)
 
     indeksi = 0
-    tyytyväisyys = user["rating"]
+    tyytyväisyys = pelaaja.rating
     paikka = 0
     lipunhinta = 200
     while indeksi < lentokone["määrä"]:
@@ -192,11 +198,11 @@ def prepare():
             paikka += 1
         indeksi += 1
     print(paikka, "paikkaa varattu")
-    if planebrokey(lentokone, paikka, user["id"]) == False:
-        rahat = user["raha"] + lipunhinta * paikka
+    if planebrokey(lentokone, paikka, pelaaja.id) == False:
+        rahat = pelaaja.raha + lipunhinta * paikka
 
-        sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = {user['id']}"
-        user["raha"] = rahat
+        sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = pelaaja.id"
+        pelaaja.raha = rahat
         cursor.execute(sql)
         print("Plane no brokey")
     else:
@@ -244,7 +250,7 @@ def ListaaLentokoneet():
     x = []
     print("Listataan Lentokoneet:")
     sql = (
-        f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone, lentokone_inventory where lentokone.id = lentokone_inventory.lentokone_id and lentokone_inventory.pelaaja_id = {user['id']} and lentokone_inventory.saapumispvm = 0")
+        f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone, lentokone_inventory where lentokone.id = lentokone_inventory.lentokone_id and lentokone_inventory.pelaaja_id = {pelaaja.id} and lentokone_inventory.saapumispvm = 0")
 
     cursor.execute(sql)
     results = cursor.fetchall()
@@ -261,20 +267,20 @@ def ListaaLentokoneet():
 
             if inputt in x:
                 sql = (
-                    f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {inputt} and lentokone_inventory.pelaaja_id = {user['id']}")
+                    f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {inputt} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
                 cursor.execute(sql)
                 resultss = cursor.fetchall()
 
                 print(resultss)
 
                 for row in resultss:
-                    Lentokone["id"] = row[0]
-                    Lentokone["tyyppi"] = row[1]
-                    Lentokone["määrä"] = row[2]
-                    Lentokone["kunto"] = row[3]
-                    Lentokone["hinta"] = row[4]
-                    Lentokone["bensa"] = row[5]
-                    Lentokone["efficiency"] = row[6]
+                    lentokone["id"] = row[0]
+                    lentokone["tyyppi"] = row[1]
+                    lentokone["määrä"] = row[2]
+                    lentokone["kunto"] = row[3]
+                    lentokone["hinta"] = row[4]
+                    lentokone["bensa"] = row[5]
+                    lentokone["efficiency"] = row[6]
                 ##TÄHÄ SE PREPARE FUNCTION EHK KU ON VALINNU LENTOKONEEN, NYT LAITOIN VAA INTERFACE ET VOI TESTAA
 
             elif inputt not in x:
@@ -286,7 +292,7 @@ def ListaaLentokoneet():
         except ValueError:
             print("damn kirjoita NUMERO.....")
             break
-        return Lentokone
+        return lentokone
 
 
 
@@ -299,7 +305,7 @@ def planebrokey(kone, asiakkaat, pelaajaid):
     kunto = kunto - 5
     sql = f"UPDATE lentokone_inventory set kunto = {kunto} where lentokone_id = {kone['id']}"
     cursor.execute(sql)
-    Lentokone["kunto"] = Lentokone["kunto"] - 5
+    lentokone["kunto"] = lentokone["kunto"] - 5
 
     rikki_randomi = random.random()
     if kunto < 60:
@@ -310,7 +316,7 @@ def planebrokey(kone, asiakkaat, pelaajaid):
             raha = raha - (asiakkaat * 100)
             raha = raha - (asiakkaat * 200)
             sql = f"UPDATE pelaaja SET raha = {raha} WHERE id = {pelaajaid}"
-            user["raha"] = raha
+            pelaaja.id = raha
             cursor.execute(sql)
             return True
     elif kunto < 80:
@@ -322,32 +328,11 @@ def planebrokey(kone, asiakkaat, pelaajaid):
             raha = raha - (asiakkaat * 100)
             raha = raha - (asiakkaat * 200)
             sql = f"UPDATE pelaaja SET raha = {raha} WHERE id = {pelaajaid}"
-            user["raha"] = raha
+            pelaaja.raha = raha
             cursor.execute(sql)
             return True
     else:
         return False
-
-def updateUser():
-    userID = user["id"]
-    sql = f"SELECT * FROM `pelaaja` WHERE id = ({userID})"
-
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    print(results)
-    if results:
-        """
-        for row in results:
-            user["id"] = row[0]
-            user["nimi"] = row[1]
-            user["raha"] = row[2]
-            user["laina"] = row[3]
-            user["eräpäivä"] = row[4]
-            user["päivä"] = row[5]
-            user["rating"] = row[7]
-            print("UPDATUSER:", row[2])
-            return"""
-
 
 def getPlane(id):
     sql = f"SELECT tyyppi, hinta, kunto, maxfuel FROM `lentokone` WHERE id = {id}"
@@ -389,20 +374,20 @@ def OstaLentokone():
                 validate = int(input("Oletko varma, että haluat ostaa tämän lentokoneen? Kyllä(1) Ei(2): "))
 
                 if validate == 1:
-                    money = user["raha"]
-                    sql1 = f"SELECT lentokone_id, pelaaja_id from `lentokone_inventory` WHERE lentokone_id = {choice} AND pelaaja_id = {user['id']}"
+                    money = pelaaja.raha
+                    sql1 = f"SELECT lentokone_id, pelaaja_id from `lentokone_inventory` WHERE lentokone_id = {choice} AND pelaaja_id = {pelaaja.id}"
                     cursor.execute(sql1)
                     x = cursor.fetchall()
 
                     if money >= hinta and not x:
-                        userID = user["id"]
+                        userID = pelaaja.id
                         sql1= f"INSERT INTO `lentokone_inventory` (pelaaja_id, lentokone_id, kunto, fuel, tunniste) VALUES ({userID}, {choice}, 100, {maxfuel}, {choice})"
-                        sql2 = f"UPDATE `pelaaja` SET raha = raha - {hinta} WHERE id = {userID}"
+                        sql2 = f"UPDATE `pelaaja` SET raha = raha - {hinta} WHERE id = {pelaaja.idd}"
                         updateUser()
                         cursor.execute(sql1)
                         cursor.execute(sql2)
                         print("Ostit juuri itsellesi mahtavan lentokoneen!")
-                        print("Rahasi ostoksen jälkeen: ", user["raha"])
+                        print("Rahasi ostoksen jälkeen: ", pelaaja.raha)
                     elif x:
                         print("")
                         print("Omistat jo tämän lentokoneen")
@@ -471,52 +456,52 @@ def ostakauppa(player_id):
 
 #lainaa saa vertaamalla tyytyväisyyden määrää ja eräpäivä on 2 viikkoa
 def Otalainaa():
-    tyytyväisyys = user["rating"]
+    tyytyväisyys = pelaaja.rating
     maksimi = 500000 * tyytyväisyys
     laina = int(input(f"Olet valtuutettu lainaamaan enintään:{maksimi} Euroa. \n paljonko otat lainaa?:"))
-    if user["eräpäivä"] == None and laina <= maksimi:
-        user["laina"] = laina * 1.2
-        user["eräpäivä"] = user['päivä'] + timedelta(days=2)
-        user["raha"] = user["raha"] + laina
-        print("Lainaa on maksettavana(+ korot):", laina*1.2, "\n Lainan eräpäivä on: ", user["eräpäivä"])
+    if pelaaja.erapaiva == None and laina <= maksimi:
+        pelaaja.laina = laina * 1.2
+        pelaaja.erapva = pelaaja.paiva + timedelta(days=2)
+        pelaaja.raha = pelaaja.raha + laina
+        print("Lainaa on maksettavana(+ korot):", laina*1.2, "\n Lainan eräpäivä on: ", pelaaja.erapaiva)
     elif laina > maksimi:
         print("et ole valtuutettu liian isoon summaan")
     else:
-        print(f"Sinulla on vanhempaa lainaa {user['laina']} euroa. et ole valtuutettu lainan ottamiseen.")
+        print(f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.")
 
 
 
 #tarkistaa ja maksaa lainan
 def tarkistalaina():
 
-    if user["eräpäivä"] is None or user['eräpäivä'] == '0000-00-00':
+    if pelaaja.eräpäivä is None or pelaaja.erapaiva  == '0000-00-00':
         return
-    if user["päivä"] == user["eräpäivä"] and user["laina"] > 0:
+    if pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
         print("|||||tänään on viimeinen päivä maksaa lainat pois!|||||")
-    elif user["päivä"] > user["eräpäivä"]:
+    elif pelaaja.paiva > pelaaja.erapaiva:
         print("et pystynyt maksaa lainaa pois. peli päättyy")
         #lisää tähän kommenot jossa poistetaan koko käyttäjä
         exit()
 
-    if user["raha"] > 0 and user["laina"] > 0:
-        maksaraha = input(f"Sinulla on {user['laina']} euroa lainaa maksettavana. haluatko maksaa pois? (j/e)") == "j"
+    if pelaaja.raha > 0 and pelaaja.laina > 0:
+        maksaraha = input(f"Sinulla on {pelaaja.laina} euroa lainaa maksettavana. haluatko maksaa pois? (j/e)") == "j"
         if (maksaraha == True):
             maara = int(input("Kuinka paljon haluat maksaa pois lainaa? enimmäismäärä on sinun rahan määrä:"))
-            user["laina"] -= (maara if maara <= user["raha"] else 0)
-            user["raha"] -= (maara if maara <= user["raha"] else 0)
-            print(user["laina"], user["raha"])
-    if user["laina"] <= 0:
+            pelaaja.laina -= (maara if maara <= pelaaja.raha else 0)
+            pelaaja.raha -= (maara if maara <= pelaaja.raha else 0)
+            print(pelaaja.laina, pelaaja.raha)
+    if pelaaja.laina <= 0:
         print("olet maksanut lainan pois! Onneksi olkoon")
-        user["eräpäivä"] = '0000-00-00'
-        user["laina"] = 0
+        pelaaja.erapaiva = '0000-00-00'
+        pelaaja.laina = 0
 
 
 def interface():
     while(True):
-        user["päivä"] += timedelta(days=1)
-        print("Tänään on: ", user["päivä"])
+        pelaaja.paiva += timedelta(days=1)
+        print("Tänään on: ", pelaaja.paiva)
         tarkistalaina()
-        sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {user['id']}"
+        sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
         cursor.execute(sql)
         results = cursor.fetchall()
         for lentokone in results:
@@ -526,11 +511,11 @@ def interface():
             if lentokone[1]  > 0:
                 pvm = lentokone[1]
                 pvm -= 1
-                sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {user['id']} and lentokone_id = {lentokone[0]}"
+                sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
                 cursor.execute(sql)
 
         while(True):
-            print("USER INTERFACE RAHA: ", user["raha"])
+            print("USER INTERFACE RAHA: ", pelaaja.raha)
             print("")
             print("Lennä (1)")
             print("Osta lentokone (2)")
@@ -548,19 +533,19 @@ def interface():
                 case "2":
                     OstaLentokone()
                 case "3":
-                    ostakauppa(user["id"])
+                    ostakauppa(pelaaja.id)
                 case "4":
                     Otalainaa()
                 case "5":
 
                     break
                 case "6":
-                    tilanteet.erikois_vierailija(user)
+                    tilanteet.erikois_vierailija(pelaaja)
                 case "0":
-                    sql = f"update pelaaja set raha = {user['raha']},laina = {user['laina']},eräpäivä = '{user['eräpäivä']}',päivä = '{user['päivä']}'  ,rating = {user['rating']} where id = {user['id']}"
+                    sql = f"update pelaaja set raha = {pelaaja.raha},laina = {pelaaja.laina},eräpäivä = '{pelaaja.erapaiva}',päivä = '{pelaaja.paiva}'  ,rating = {pelaaja.rating} where id = {pelaaja.id}"
                     cursor.execute(sql)
                     cursor.close()
                     exit()
 
-login()
+User.login()
 
