@@ -5,12 +5,12 @@ from geopy.distance import geodesic as gd
 import random
 import mysql.connector
 import json
-from flask import Flask, request, Response, jsonify, redirect
+from flask import Flask, request, Response, jsonify, redirect, render_template
 import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
 from flask_cors import CORS
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../FRONT', static_folder='../FRONT', static_url_path='/')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -51,9 +51,15 @@ lentokone = {
     "location": ""
 }
 
+@app.route('/')
+def index():
+    return render_template('auth.html')
+
+
 
 @app.route('/login', methods=['POST', 'GET'])        
 def login():
+
     username = request.form['username']
     password_input = request.form['password']
     sql = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
@@ -69,6 +75,7 @@ def login():
             pelaaja = User(row[0], row[1], row[2], row[3], row[4], row[5], row[7])
         return jsonify({"message": "Login successful", "user": pelaaja.nimi , "id":pelaaja.id})
 
+    
                         #interface()
                     
 
