@@ -49,6 +49,7 @@ lentokone = {
     "location": ""
 }
 
+
 #@app.route('/login', methods=['POST'])        
 def login():
         print("Welcome to airport tycoon!")
@@ -82,6 +83,7 @@ def login():
                     break
 
 #@app.route('/create_player', methods=['POST'])
+
 def createPlayer():
     raha = 800000
     paiva = date.today()
@@ -100,47 +102,15 @@ def createPlayer():
             sql2 = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
             cursor.execute(sql2, (playerName, password))
             results = cursor.fetchall()
-            pelaaja = User(results[0])
-
+            for row in results:
+                        global pelaaja
+                        pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
             interface()
             break
 
         else:
             print("Username is already taken")
             #return jsonify({"message": "Username is already taken"}), 400
-        raha = 800000
-        paiva = date.today()
-        rating = 0.5
-        print("Welcome to airport tycoon!")
-        print("Start your journey by entering your name")
-
-        while True:
-            playerName = input("Enter your name: ")
-
-            if isNameTaken(playerName) == False:
-                password = input("Enter your password: ")
-                sql = f"INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(sql, (playerName, raha, password, paiva, rating))
-
-                sql2 = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
-                cursor.execute(sql2, (playerName, password))
-                results = cursor.fetchall()
-                pelaaja = User(results[0])
-                """"for row in results:
-                    user["id"] = row[0]
-                    user["nimi"] = row[1]
-                    user["raha"] = row[2]
-                    user["laina"] = row[3]
-                    pelaaja.erapaiva = row[4]
-                    user["päivä"] = row[5]
-                    user["rating"] = row[7]"""
-                #return jsonify({"message": "Player created successfully"}), 201
-                interface()
-                break
-
-            elif isNameTaken(playerName) == True:
-                #return jsonify({"message": "Username is already taken"}), 400
-                print("Username is already taken")
 
 def updateUser():
         userID = pelaaja.id
@@ -158,6 +128,7 @@ def updateUser():
             pelaaja.paiva = row[5]
             pelaaja.rating = row[7]
             return
+        
 def isNameTaken(playerName):
         sql = f"SELECT nimi FROM `pelaaja`"
         cursor.execute(sql)
@@ -298,7 +269,7 @@ def ListaaLentokoneet():
             if inputt in x:
                 sql = (
                     f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {inputt} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
-                cursor.execute(sql)s
+                cursor.execute(sql)
                 resultss = cursor.fetchall()
                 #return jsonify(resultss)
                 print(resultss)
