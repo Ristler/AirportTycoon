@@ -1,6 +1,6 @@
 from random import random
 from types import NoneType
-from datetime import date
+from datetime import date, timedelta
 from geopy.distance import geodesic as gd
 import random
 import mysql.connector
@@ -8,6 +8,17 @@ import json
 from flask import Flask, request, Response, jsonify
 import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
+
+
+connection = mysql.connector.connect(
+    host='127.0.0.1',
+    port=3306,
+    database='peli',
+    user='root',
+    password='1234',
+    autocommit=True
+)
+cursor = connection.cursor()
 
 
 app = Flask(__name__)
@@ -184,21 +195,6 @@ class Store(Inventory):
     "saapumispvm" : 0,
     "location": ""
 }"""
-connection = mysql.connector.connect(
-    host='127.0.0.1',
-    port=3306,
-    database='peli',
-    user='root',
-    password='1234',
-    autocommit=True
-)
-cursor = connection.cursor()
-
-
-
-
-from datetime import timedelta
-
 
 def Tulostus(data):
     line = '\u2550'*79
