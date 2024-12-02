@@ -31,7 +31,9 @@ async function handleLogin(event) {
 
         if (response.ok) {
             alert(`Login successful! Welcome, ${result.user}`);
-            window.location.href = 'airporttycoon.html';
+            
+            window.location.replace = 'http://127.0.0.1:5000/airporttycoon.html';
+
         } else {
             alert(result.message);  // Show the error message
         }
