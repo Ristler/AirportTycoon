@@ -28,11 +28,15 @@ async function handleLogin(event) {
 
         // Handle response
         const result = await response.json();
-        console.log("mitäs", result)
+      
 
         if (response.ok) {
+
+            localStorage.setItem("userId", result.id)
+            localStorage.setItem("username", result.user)
             alert(`Login successful! Welcome, ${result.user}`);
             window.location.replace('airporttycoon.html');
+            
 
         } else {
             alert(result.message);  // Show the error message
