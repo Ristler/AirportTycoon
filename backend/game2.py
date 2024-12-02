@@ -5,9 +5,13 @@ from geopy.distance import geodesic as gd
 import random
 import mysql.connector
 import json
-from flask import Flask, request, Response, jsonify
+from flask import Flask, request, Response, jsonify, redirect
 import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
+
+
+from flask_cors import CORS
+
 
 
 connection = mysql.connector.connect(
@@ -22,6 +26,9 @@ cursor = connection.cursor()
 
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 
 choices = []
 #lista = [0,0,0,0,0,0,0]
@@ -50,40 +57,27 @@ lentokone = {
 }
 
 
-#@app.route('/login', methods=['POST'])        
+@app.route('/login', methods=['POST', 'GET'])        
 def login():
-        print("Welcome to airport tycoon!")
-        print("Are you a new player, or do you want to sign in?")
-        userInput = int(input("Sign in (1) New user(2): "))
-        if not userInput == 1 and not userInput == 2:
-            print("Invalid command, reboot the game!")
-            return
-        if userInput == 2:
-            createPlayer()
+    username = request.form['username']
+    password_input = request.form['password']
+    sql = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
+    cursor.execute(sql, (username, password_input))
+    results = cursor.fetchall()
 
-        if userInput == 1:
-            while True:
-                userInput = input("Username: ")
-                passwordInput = input("Password: ")
-                sql = f"SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
-                cursor.execute(sql, (userInput, passwordInput))
-                results = cursor.fetchall()
-                print(results)
-                if not results:
-                    print("User not found or password is wrong.")
-                    #return jsonify({"message": "Invalid username or password"}), 401
-                elif results:
-                    print("löytyy")
-                    for row in results:
-                        global pelaaja
-                        pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
-                    print (pelaaja)
-                    #return jsonify({"message": "Login successful", "user": pelaaja.nimi}) 
-                    interface()
-                    break
+    if not results:
+        return jsonify({"message": "Invalid username or password"}), 401
+
+    elif results:
+        for row in results:
+            global pelaaja
+            pelaaja = User(row[0], row[1], row[2], row[3], row[4], row[5], row[7])
+        return jsonify({"message": "Login successful", "user": pelaaja.nimi})
+
+                        #interface()
+                    
 
 #@app.route('/create_player', methods=['POST'])
-
 def createPlayer():
     raha = 800000
     paiva = date.today()
@@ -115,7 +109,6 @@ def createPlayer():
 def updateUser():
         userID = pelaaja.id
         sql = f"SELECT * FROM `pelaaja` WHERE id = ({userID})"
-
         cursor.execute(sql)
         results = cursor.fetchall()
         print(results)
@@ -143,8 +136,6 @@ class Inventory:
     def __init__(self, konelista, kauppalista):
         self.lista = konelista
         self.kauppalista = kauppalista
-
-
 
 
 
@@ -390,9 +381,9 @@ def OstaLentokone():
                         userID = pelaaja.id
                         sql1= f"INSERT INTO `lentokone_inventory` (pelaaja_id, lentokone_id, kunto, fuel, tunniste) VALUES ({userID}, {choice}, 100, {maxfuel}, {choice})"
                         sql2 = f"UPDATE `pelaaja` SET raha = raha - {hinta} WHERE id = {pelaaja.idd}"
-                        updateUser()
                         cursor.execute(sql1)
                         cursor.execute(sql2)
+                        updateUser()
                         print("Ostit juuri itsellesi mahtavan lentokoneen!")
                         print("Rahasi ostoksen jälkeen: ", pelaaja.raha)
                     elif x:
@@ -559,5 +550,7 @@ def interface():
                     cursor.close()
                     exit()
 
-login()
+##login()
 
+if __name__ == '__main__':
+    app.run(use_reloader=True, host='127.0.0.1', port=5000)
