@@ -1,15 +1,16 @@
 from random import random
 from types import NoneType
 from datetime import date
-
 from geopy.distance import geodesic as gd
 import random
-
-
 import mysql.connector
-from flask import Flask, request, Response
+import json
+from flask import Flask, request, Response, jsonify
 import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
+
+
+app = Flask(__name__)
 
 choices = []
 #lista = [0,0,0,0,0,0,0]
@@ -37,7 +38,7 @@ lentokone = {
     "location": ""
 }
 
-        
+#@app.route('/login', methods=['POST'])        
 def login():
         print("Welcome to airport tycoon!")
         print("Are you a new player, or do you want to sign in?")
@@ -58,16 +59,18 @@ def login():
                 print(results)
                 if not results:
                     print("User not found or password is wrong.")
+                    #return jsonify({"message": "Invalid username or password"}), 401
                 elif results:
                     print("löytyy")
                     for row in results:
                         global pelaaja
                         pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
                     print (pelaaja)
+                    #return jsonify({"message": "Login successful", "user": pelaaja.nimi}) 
                     interface()
                     break
 
-
+#@app.route('/create_player', methods=['POST'])
 def createPlayer():
     raha = 800000
     paiva = date.today()
@@ -93,6 +96,7 @@ def createPlayer():
 
         else:
             print("Username is already taken")
+            #return jsonify({"message": "Username is already taken"}), 400
         raha = 800000
         paiva = date.today()
         rating = 0.5
@@ -119,11 +123,12 @@ def createPlayer():
                     pelaaja.erapaiva = row[4]
                     user["päivä"] = row[5]
                     user["rating"] = row[7]"""
-
+                #return jsonify({"message": "Player created successfully"}), 201
                 interface()
                 break
 
             elif isNameTaken(playerName) == True:
+                #return jsonify({"message": "Username is already taken"}), 400
                 print("Username is already taken")
 
 def updateUser():
@@ -274,7 +279,7 @@ def Haetaanmaaranpaa(bensa, efficiency):
 
     return valittu_maa, bensankulutus
 
-
+#@app.route('/listaa_lentokoneet', methods=['GET'])
 def ListaaLentokoneet():
     x = []
     print("Listataan Lentokoneet:")
@@ -297,9 +302,9 @@ def ListaaLentokoneet():
             if inputt in x:
                 sql = (
                     f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {inputt} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
-                cursor.execute(sql)
+                cursor.execute(sql)s
                 resultss = cursor.fetchall()
-
+                #return jsonify(resultss)
                 print(resultss)
 
                 for row in resultss:
@@ -314,12 +319,15 @@ def ListaaLentokoneet():
 
             elif inputt not in x:
                 print("cmon bro ei sul tollast lentokonetta oo")
+                #return jsonify({"error": "ei ole tommosta konetta"})
                 break
             elif inputt == 0:
                 print("palataan käyttöjärjestelmään")
+                #return jsonify({"Palataan käyttöjärjestelmään"})
                 break
         except ValueError:
             print("damn kirjoita NUMERO.....")
+            #return jsonify({"error": "MISINPUT IT WAS A MISINPUT"})
             break
         return lentokone
 
@@ -363,6 +371,7 @@ def planebrokey(kone, asiakkaat, pelaajaid):
     else:
         return False
 
+#@app.route('/getPlane/<int:id>', methods=['GET'])
 def getPlane(id):
     sql = f"SELECT tyyppi, hinta, kunto, maxfuel FROM `lentokone` WHERE id = {id}"
     cursor.execute(sql)
@@ -371,6 +380,7 @@ def getPlane(id):
         tyyppi, hinta, kunto, maxfuel = results[0]
         return tyyppi, hinta, kunto, maxfuel
 
+#@app.route('/ostalentokone', methods=['GET'])
 def OstaLentokone():
 
 
@@ -380,6 +390,7 @@ def OstaLentokone():
     sql = f"SELECT id, tyyppi, kapasiteetti, kunto, hinta, maxfuel, efficiency FROM `lentokone`"
     cursor.execute(sql)
     results = cursor.fetchall()
+
     Tulostus(results)
     while True:
         updateUser()
@@ -432,7 +443,7 @@ def OstaLentokone():
             print("Syöte täytyy olla numero!")
 
 
-
+#@app.route('/ostakauppa/<int:player_id>', methods=['GET'])
 def ostakauppa(player_id):
     query = f"SELECT id, tyyppi, hinta, teema FROM kaupat WHERE id NOT IN (SELECT kauppa_id FROM kauppa_inventory WHERE pelaaja_id = {player_id})"
     cursor.execute(query)
@@ -484,6 +495,7 @@ def ostakauppa(player_id):
         print("Player not found.")
 
 #lainaa saa vertaamalla tyytyväisyyden määrää ja eräpäivä on 2 viikkoa
+#@app.route('/otalainaa', methods=['GET'])
 def Otalainaa():
     tyytyväisyys = pelaaja.rating
     maksimi = 500000 * tyytyväisyys
@@ -501,6 +513,7 @@ def Otalainaa():
 
 
 #tarkistaa ja maksaa lainan
+#@app.route('/tarkistalaina', methods=['GET'])
 def tarkistalaina():
 
     if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
