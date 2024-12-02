@@ -9,9 +9,10 @@ from flask import Flask, request, Response, jsonify, redirect
 import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
-
 from flask_cors import CORS
-
+app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 connection = mysql.connector.connect(
@@ -23,12 +24,6 @@ connection = mysql.connector.connect(
     autocommit=True
 )
 cursor = connection.cursor()
-
-
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-
 
 choices = []
 #lista = [0,0,0,0,0,0,0]
@@ -72,7 +67,7 @@ def login():
         for row in results:
             global pelaaja
             pelaaja = User(row[0], row[1], row[2], row[3], row[4], row[5], row[7])
-        return jsonify({"message": "Login successful", "user": pelaaja.nimi})
+        return jsonify({"message": "Login successful", "user": pelaaja.nimi , "id":pelaaja.id})
 
                         #interface()
                     

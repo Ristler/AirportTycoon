@@ -1,4 +1,5 @@
 'use strict';
+
 async function handleLogin(event) {
     event.preventDefault();  // Prevent the default form submission
 
@@ -17,7 +18,6 @@ async function handleLogin(event) {
     formData.append('username', username);
     formData.append('password', password);
 
-    console.log("wtf br", username);
 
     try {
         // Send the data via a POST request using Fetch API
@@ -28,11 +28,11 @@ async function handleLogin(event) {
 
         // Handle response
         const result = await response.json();
+        console.log("mitäs", result)
 
         if (response.ok) {
             alert(`Login successful! Welcome, ${result.user}`);
-            
-            window.location.replace = 'http://127.0.0.1:5000/airporttycoon.html';
+            window.location.replace('airporttycoon.html');
 
         } else {
             alert(result.message);  // Show the error message
