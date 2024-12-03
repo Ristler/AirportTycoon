@@ -22,4 +22,4 @@ MYRSKY TULOSSA!! ET VOI LENTÄÄ KOLMEEN SEURAAVAAN PÄIVÄÄN''')
         sql = f'select kauppa_id from kauppa_inventory where pelaaja_id = {user["id"]}'
         cursor.execute(sql)
         results = cursor.fetchall()
-        print(results)
+        print(results) 
