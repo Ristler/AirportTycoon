@@ -117,7 +117,12 @@ def createplayer():
         results = cursor.fetchall()
         for row in results:
                     global pelaaja
-                    pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
+                    pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])¨
+
+        
+        #Tehdään pelaajalle saavutukset eli achievementit
+        sql= '''insert into 'achievements' (id,name,tracker,taken,description)
+                values()'''
         return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
                         "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
                         "rating": pelaaja.rating})
