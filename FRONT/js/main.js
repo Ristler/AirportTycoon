@@ -15,11 +15,18 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 }).addTo(map);
 map.setView([60, 24], 7);
 
+
+//ONLY USED FOR TESTING NOW
+map.flyTo([40.7128, -74.0060], 12, {
+  duration: 20,      // Fly duration in seconds
+  easeLinearity: 0.9 // Smoothness of the fly animation
+});
+
+
 //Navbar user info
 const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
 const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
 const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
-
 
 
 async function xFunction(event) {
