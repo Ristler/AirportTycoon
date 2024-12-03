@@ -10,7 +10,11 @@ import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
 from flask_cors import CORS
+
+
+##YHDISTÄÄ FRONTIIN FOLDERIIN ETTII SIELT HTML
 app = Flask(__name__, template_folder='../FRONT', static_folder='../FRONT', static_url_path='/')
+
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -52,7 +56,7 @@ lentokone = {
 }
 
 @app.route('/')
-def index():
+def auth():
     return render_template('auth.html')
 
 
@@ -73,7 +77,9 @@ def login():
         for row in results:
             global pelaaja
             pelaaja = User(row[0], row[1], row[2], row[3], row[4], row[5], row[7])
-        return jsonify({"message": "Login successful", "user": pelaaja.nimi , "id":pelaaja.id})
+        return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
+                        "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
+                        "rating": pelaaja.rating})
 
     
                         #interface()
@@ -101,8 +107,10 @@ def createPlayer():
             for row in results:
                         global pelaaja
                         pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
-            interface()
-            break
+            return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
+                        "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
+                        "rating": pelaaja.rating})
+
 
         else:
             print("Username is already taken")
@@ -171,9 +179,9 @@ def Tulostus(data):
             print("\u2560"+ line+ "\u2563")
     print("\u255a" + line + "\u255d")
 
-
+@app.route('/prepare')
 def prepare():
-    lentokone = ListaaLentokoneet()
+    #lentokone = ListaaLentokoneet() vanhentunut
     if lentokone is None:
         return
     print("Matkustajat nousevat koneeseen..")
@@ -239,7 +247,7 @@ def Haetaanmaaranpaa(bensa, efficiency):
 
     return valittu_maa, bensankulutus
 
-#@app.route('/listaa_lentokoneet', methods=['GET'])
+@app.route('/listaa_lentokoneet', methods=['POST'])
 def ListaaLentokoneet():
     x = []
     print("Listataan Lentokoneet:")
@@ -287,9 +295,8 @@ def ListaaLentokoneet():
                 break
         except ValueError:
             print("damn kirjoita NUMERO.....")
-            #return jsonify({"error": "MISINPUT IT WAS A MISINPUT"})
-            break
-        return lentokone
+            return jsonify({"error": "MISINPUT IT WAS A MISINPUT"})
+        return jsonify(lentokone)
 
 
 

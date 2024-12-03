@@ -17,6 +17,7 @@ async function handleLogin(event) {
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
+    
 
 
     try {
@@ -28,13 +29,26 @@ async function handleLogin(event) {
 
         // Handle response
         const result = await response.json();
-      
+        console.log(result)
+        
+
 
         if (response.ok) {
+            
 
-            localStorage.setItem("userId", result.id)
+            localStorage.setItem("class", JSON.stringify(result));
+            
+            //kun haluat hakea classii (localstorage.getitem) muista käyttää json.parsee
+            /*localStorage.setItem("userId", result.id)
             localStorage.setItem("username", result.user)
+            localStorage.setItem("raha", result.raha)
+            localStorage.setItem("laina", result.laina)
+            localStorage.setItem("Eräpäivä", result.erapaiva)
+            localStorage.setItem("Päivä", result.paiva)
+            localStorage.setItem("rating", result.rating)*/
+            
             alert(`Login successful! Welcome, ${result.user}`);
+           
             window.location.replace('airporttycoon.html');
             
 

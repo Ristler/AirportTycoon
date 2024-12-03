@@ -1,7 +1,11 @@
 
 //Gets user id and name from localstorage. -> saved in auth.js
-const userId = localStorage.getItem("userId")
-const user = localStorage.getItem("username")
+
+
+//UserLocal IS NOT WORKING ITS NULL MIKSI????
+const userLocal = JSON.parse(localStorage.getItem("user"))
+const moneyLocal = JSON.parse(localStorage.getItem("raha"))
+const lainaLocal = JSON.parse(localStorage.getItem("laina"))
 
 
 const map = L.map('map', { tap: false });
@@ -11,8 +15,34 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 }).addTo(map);
 map.setView([60, 24], 7);
 
+//Navbar user info
+const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
+const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
+const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
 
-//ONLY USED FOR TESTING 
-username = document.querySelector("#name").innerHTML = user
+
+
+async function xFunction(event) {
+  event.preventDefault();
+  
+  // Prevent the default form submission
+  lentokoneet = new formData();
+  lentokoneet.append("id", id )
+  try{
+  const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
+    method: 'POST',
+    body: lentokoneet,
+});
+  if(response.ok){
+      const result = await response.json();
+      console.log("LISTAALENTOKONE TESTI", result);
+   } else {
+          alert(result.message);  // Show the error message
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again later.');
+  }
+}
 
 

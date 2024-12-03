@@ -43,14 +43,19 @@ nav {
     width: 30%;
     
 }
+
+
 ul {
     display: flex;
     list-style-type: none;
     justify-content: space-evenly;
-    background-color: #8BAE4A;
+    background-color: #2559a9;
     padding: 0px;
     margin: 0;
 }
+
+
+
 main {
     background-color: #1565c0;
     padding:1rem;
@@ -79,7 +84,7 @@ li {
 }
 
 li a {
-    background-color: #748a52;
+    background-color: #1976d2;
     color: floralwhite;
     width: 100%;
     display: block;
@@ -89,7 +94,7 @@ li a {
 }
 
 li a:hover {
-    background-color: #7f9360;
+    background-color: #1976d2;
 }
 
 
@@ -205,6 +210,12 @@ footer {
     padding: 1rem;
     text-align: center;
 }
+
+
+
+
+
+
 
 
 @media screen and (max-width: 768px) {
