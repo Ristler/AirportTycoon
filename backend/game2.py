@@ -10,7 +10,27 @@ import tilanteet
 tilanteet = tilanteet.tilanteet("peli")
 
 from flask_cors import CORS
+
+##### old code pieces for hindsight is 2020 type beat
+#"""lentokone = {
+#    "id" : 0,
+#    "tyyppi" : "",
+#    "määrä" : 0,
+#    "kunto" : 0,
+#    "hinta" : 0,
+#    "bensa" : 0,
+#    "efficiency" : 0,
+#    "saapumispvm" : 0,
+#    "location": ""
+#}"""
+#
+
+
+
+
+##YHDISTÄÄ FRONTIIN FOLDERIIN ETTII SIELT HTML
 app = Flask(__name__, template_folder='../FRONT', static_folder='../FRONT', static_url_path='/')
+
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -52,12 +72,14 @@ lentokone = {
 }
 
 @app.route('/')
-def index():
+def auth():
     return render_template('auth.html')
 
 
 
-@app.route('/login', methods=['POST', 'GET'])        
+@app.route('/login', methods=['POST', 'GET'])      
+
+#login function, user gets assigned the database values, eräpäivä and päivä are for the loan.
 def login():
 
     username = request.form['username']
@@ -73,40 +95,34 @@ def login():
         for row in results:
             global pelaaja
             pelaaja = User(row[0], row[1], row[2], row[3], row[4], row[5], row[7])
-        return jsonify({"message": "Login successful", "user": pelaaja.nimi , "id":pelaaja.id})
+        return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
+                        "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
+                        "rating": pelaaja.rating})
 
     
                         #interface()
                     
 
-#@app.route('/create_player', methods=['POST'])
-def createPlayer():
-    raha = 800000
-    paiva = date.today()
-    rating = 0.5
-    print("Welcome to airport tycoon!")
-    print("Start your journey by entering your name")
+@app.route('/createplayer', methods=['POST', 'GET'])      
 
-    while True:
-        playerName = input("Enter your name: ")
+def createplayer():
 
-        if not isNameTaken(playerName):
-            password = input("Enter your password: ")
-            sql = "INSERT INTO `pelaaja` (nimi, raha, salasana, päivä, rating) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(sql, (playerName, raha, password, paiva, rating))
-
-            sql2 = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
-            cursor.execute(sql2, (playerName, password))
-            results = cursor.fetchall()
-            for row in results:
-                        global pelaaja
-                        pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
-            interface()
-            break
-
-        else:
-            print("Username is already taken")
-            #return jsonify({"message": "Username is already taken"}), 400
+    username = request.form['username']
+    if not isNameTaken(username):
+        password_input = request.form['password']
+        sql = "INSERT INTO `pelaaja` (nimi, salasana) VALUES (%s, %s)"
+        cursor.execute(sql, (username, password_input))
+        sql2 = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
+        cursor.execute(sql2, (username, password_input))
+        results = cursor.fetchall()
+        for row in results:
+                    global pelaaja
+                    pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
+        return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
+                        "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
+                        "rating": pelaaja.rating})
+    if isNameTaken(username):
+        return jsonify({"message": "Username is already taken"}), 400
 
 def updateUser():
         userID = pelaaja.id
@@ -134,6 +150,11 @@ def isNameTaken(playerName):
                 return True
         else:
             return False
+        
+
+
+
+
 class Inventory:
     def __init__(self, konelista, kauppalista):
         self.lista = konelista
@@ -148,17 +169,6 @@ class Store(Inventory):
 
 
 
-"""lentokone = {
-    "id" : 0,
-    "tyyppi" : "",
-    "määrä" : 0,
-    "kunto" : 0,
-    "hinta" : 0,
-    "bensa" : 0,
-    "efficiency" : 0,
-    "saapumispvm" : 0,
-    "location": ""
-}"""
 
 def Tulostus(data):
     line = '\u2550'*79
@@ -171,9 +181,9 @@ def Tulostus(data):
             print("\u2560"+ line+ "\u2563")
     print("\u255a" + line + "\u255d")
 
-
+@app.route('/prepare')
 def prepare():
-    lentokone = ListaaLentokoneet()
+    #lentokone = ListaaLentokoneet() vanhentunut
     if lentokone is None:
         return
     print("Matkustajat nousevat koneeseen..")
@@ -185,7 +195,7 @@ def prepare():
     indeksi = 0
     tyytyväisyys = pelaaja.rating
     paikka = 0
-    lipunhinta = 200
+    lipunhinta = (200 * bensa) / lentokone["efficiency"]
     while indeksi < lentokone["määrä"]:
         randomi = random.random()
         if tyytyväisyys >= randomi:
@@ -239,8 +249,9 @@ def Haetaanmaaranpaa(bensa, efficiency):
 
     return valittu_maa, bensankulutus
 
-#@app.route('/listaa_lentokoneet', methods=['GET'])
+@app.route('/ListaaLentokoneet', methods=['POST'])
 def ListaaLentokoneet():
+
     x = []
     print("Listataan Lentokoneet:")
     sql = (
@@ -248,7 +259,9 @@ def ListaaLentokoneet():
 
     cursor.execute(sql)
     results = cursor.fetchall()
-    Tulostus(results)
+    print(results)
+
+    return jsonify({results})
 
     for row in results:
         x.append(row[0])
@@ -287,9 +300,8 @@ def ListaaLentokoneet():
                 break
         except ValueError:
             print("damn kirjoita NUMERO.....")
-            #return jsonify({"error": "MISINPUT IT WAS A MISINPUT"})
-            break
-        return lentokone
+            return jsonify({"error": "MISINPUT IT WAS A MISINPUT"})
+        return jsonify(lentokone)
 
 
 
