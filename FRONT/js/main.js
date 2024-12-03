@@ -3,9 +3,9 @@
 
 
 //UserLocal IS NOT WORKING ITS NULL MIKSI????
-const userLocal = JSON.parse(localStorage.getItem("user"))
-const moneyLocal = JSON.parse(localStorage.getItem("raha"))
-const lainaLocal = JSON.parse(localStorage.getItem("laina"))
+const userLocal = JSON.parse(localStorage.getItem("class")).user
+const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
+const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
 
 
 const map = L.map('map', { tap: false });
