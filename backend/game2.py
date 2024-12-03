@@ -193,7 +193,7 @@ def prepare():
     indeksi = 0
     tyytyväisyys = pelaaja.rating
     paikka = 0
-    lipunhinta = 200
+    lipunhinta = (200 * bensa) / lentokone["efficiency"]
     while indeksi < lentokone["määrä"]:
         randomi = random.random()
         if tyytyväisyys >= randomi:
@@ -247,8 +247,9 @@ def Haetaanmaaranpaa(bensa, efficiency):
 
     return valittu_maa, bensankulutus
 
-@app.route('/listaa_lentokoneet', methods=['POST'])
+@app.route('/ListaaLentokoneet', methods=['POST'])
 def ListaaLentokoneet():
+
     x = []
     print("Listataan Lentokoneet:")
     sql = (
@@ -256,7 +257,9 @@ def ListaaLentokoneet():
 
     cursor.execute(sql)
     results = cursor.fetchall()
-    Tulostus(results)
+    print(results)
+
+    return jsonify({results})
 
     for row in results:
         x.append(row[0])

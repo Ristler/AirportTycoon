@@ -33,15 +33,14 @@ async function xFunction(event) {
   event.preventDefault();
   
   // Prevent the default form submission
-  lentokoneet = new formData();
-  lentokoneet.append("id", id )
+
   try{
   const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
-    method: 'POST',
-    body: lentokoneet,
+    method: 'POST'
 });
+  const result = await JSON.parse(response.json());
   if(response.ok){
-      const result = await response.json();
+
       console.log("LISTAALENTOKONE TESTI", result);
    } else {
           alert(result.message);  // Show the error message
