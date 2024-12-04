@@ -59,6 +59,7 @@ class User:
         self.rating = rating
 
 
+##TÄTÄ EI VARMAA TARVII ENÄÄ??
 lentokone = {
     "id" : 0,
     "tyyppi" : "",
@@ -98,9 +99,6 @@ def login():
         return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
                         "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
                         "rating": pelaaja.rating})
-
-    
-                        #interface()
                     
 
 @app.route('/createplayer', methods=['POST', 'GET'])      
@@ -181,6 +179,9 @@ def Tulostus(data):
             print("\u2560"+ line+ "\u2563")
     print("\u255a" + line + "\u255d")
 
+
+
+##TODO THIS IS URGENT
 @app.route('/prepare')
 def prepare():
     #lentokone = ListaaLentokoneet() vanhentunut
@@ -302,7 +303,7 @@ def ListaaLentokoneet():
 
 
 
-
+##PROBABLY BROKEN
 def planebrokey(kone, asiakkaat, pelaajaid):
     sql = f"SELECT kunto FROM lentokone_inventory where lentokone_id = {kone['id']}"
     cursor.execute(sql)
@@ -349,6 +350,7 @@ def getPlane(id):
         tyyppi, hinta, kunto, maxfuel = results[0]
         return tyyppi, hinta, kunto, maxfuel
 
+##TODO URGENT
 #@app.route('/ostalentokone', methods=['GET'])
 def OstaLentokone():
 
@@ -560,8 +562,6 @@ def interface():
                     cursor.execute(sql)
                     cursor.close()
                     exit()
-
-##login()
 
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=5000)

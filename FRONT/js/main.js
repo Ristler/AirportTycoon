@@ -1,8 +1,5 @@
 
 //Gets user id and name from localstorage. -> saved in auth.js
-
-
-//UserLocal IS NOT WORKING ITS NULL MIKSI????
 const userLocal = JSON.parse(localStorage.getItem("class")).user
 const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
 const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
@@ -50,5 +47,30 @@ async function xFunction(event) {
       alert('An error occurred. Please try again later.');
   }
 }
+
+
+async function ostaLentokone(event) {
+  event.preventDefault();
+  
+  // Prevent the default form submission
+
+  try{
+  const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
+    method: 'POST'
+});
+  const result = await JSON.parse(response.json());
+  if(response.ok){
+
+      console.log("LISTAALENTOKONE TESTI", result);
+   } else {
+          alert(result.message);  // Show the error message
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again later.');
+  }
+}
+
+
 
 
