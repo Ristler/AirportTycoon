@@ -117,12 +117,7 @@ def createplayer():
         results = cursor.fetchall()
         for row in results:
                     global pelaaja
-                    pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])¨
-
-        
-        #Tehdään pelaajalle saavutukset eli achievementit
-        sql= '''insert into 'achievements' (id,name,tracker,taken,description)
-                values()'''
+                    pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
         return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
                         "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
                         "rating": pelaaja.rating})
@@ -200,7 +195,7 @@ def prepare():
     indeksi = 0
     tyytyväisyys = pelaaja.rating
     paikka = 0
-    lipunhinta = (200 * bensa) / lentokone["efficiency"]
+    lipunhinta = 200
     while indeksi < lentokone["määrä"]:
         randomi = random.random()
         if tyytyväisyys >= randomi:
@@ -254,9 +249,8 @@ def Haetaanmaaranpaa(bensa, efficiency):
 
     return valittu_maa, bensankulutus
 
-@app.route('/ListaaLentokoneet', methods=['POST'])
+@app.route('/listaa_lentokoneet', methods=['POST'])
 def ListaaLentokoneet():
-
     x = []
     print("Listataan Lentokoneet:")
     sql = (
@@ -264,9 +258,7 @@ def ListaaLentokoneet():
 
     cursor.execute(sql)
     results = cursor.fetchall()
-    print(results)
-
-    return jsonify({results})
+    Tulostus(results)
 
     for row in results:
         x.append(row[0])

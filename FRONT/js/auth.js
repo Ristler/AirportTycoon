@@ -69,8 +69,8 @@ async function handleRegister(event) {
     event.preventDefault();  // Prevent the default form submission
 
     // Get form data
-    const username = document.getElementById('usernameReg').value;
-    const password = document.getElementById('passwordReg').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
     console.log("userrrr", username)
     console.log("userrrr", password)
