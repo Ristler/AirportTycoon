@@ -170,6 +170,15 @@ section figure {
     background-color: #b8c972;
 
 }
+.planeCard {
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    padding: 0;
+    margin: 40px;
+    border-radius: 5px;
+
+}
 
 .desc {
     text-align: center;
