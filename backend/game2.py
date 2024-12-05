@@ -646,7 +646,7 @@ def interface():
                 case "2":
                     OstaLentokone()
                 case "3":
-                    ostakauppa(pelaaja.id)
+                    osta_kauppa(pelaaja.id)
                 case "4":
                     Otalainaa()
                 case "5":
