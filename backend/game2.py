@@ -7,7 +7,8 @@ import mysql.connector
 import json
 from flask import Flask, request, Response, jsonify, redirect, render_template
 import tilanteet
-tilanteet = tilanteet.tilanteet("peli")
+import math
+tilanteet = tilanteet.tilanteet()
 
 from flask_cors import CORS
 
@@ -535,45 +536,59 @@ def osta_lentokone():
 
     return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti lentokoneen {plane_id}!"})
 
-
+@app.route('/newday', methods=['GET'])
 def uusi_paiva():
-    cursor.execute('select count(kauppa_id) as määrä from kauppa_inventory where pelaaja_id = f{pelaaja.id}')
+    json_paketti = []
+    #lasketaan kuinka monta kauppaa on ja kerrataan se tonnilla ja ratingillä
+    cursor.execute(f'select count(kauppa_id) from kauppa_inventory where pelaaja_id = {pelaaja.id}')
     result = cursor.fetchall()
     maara = result[0]
-    kauppa_tulot = int(1000*maara*pelaaja.id)
-    cursor.execute(f'select raha from pelaaja where id= f{pelaaja.id}')
-    raha = cursor.fetchone
+    kauppa_tulot = math.floor(1000*maara[0]*pelaaja.rating)
+    pelaaja.raha += kauppa_tulot
     pelaaja.paiva += timedelta(days=1)
-    cursor.execute(f'update on pelaaja set (raha = f{raha+kauppa_tulot}, päivämäärä = f{pelaaja.paiva} where id = f{pelaaja.id}')
-    tarkistalaina() 
+    cursor.execute(f'update on pelaaja set (raha = raha + {kauppa_tulot}, päivämäärä = f{pelaaja.paiva} where id = f{pelaaja.id}')
+    
+    
+    #ota tää pois kun olet korjannut Otalainaa() ja Tarkistalainaa()
+    #tarkistalaina()
+    json_paketti.append(f'kaupat tuotti tulosta: {kauppa_tulot} rahanmäärä on nyt {pelaaja.raha}')
+
     sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
     cursor.execute(sql)
     results = cursor.fetchall()
     for lentokone in results:
         kone = getPlane(lentokone[0])
         if lentokone[1]-1 == 0:
-            print("Kone", kone[0], " on saapunut lentokentälle")
+            json_paketti.append(f"Kone f{kone[0]} on saapunut lentokentälle")
+
             if lentokone[1]  > 0:
                 pvm = lentokone[1]
                 pvm -= 1
                 sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
                 cursor.execute(sql)
-    
-
+    global Onkolennetty
     if Onkolennetty == True:
         Onkolennetty = False #Lisää frequent flyer achievement function
         cursor.execute("")
 
-    cursor.execute(f'select * from tilanteet where id = f{pelaaja.id}')
+    cursor.execute(f'select pvm from tilanteet where pelaaja_id = {pelaaja.id}')
+    
     results = cursor.fetchall()
-    if(results[0]["pvm"] > 0):
-        tilanne = results[0]["pvm"]
+    print(results)
+    if(results[0][0] > 0):
+        tilanne = results[0][0]
         tilanne -= 1
-        cursor.execute(f'update tilanteet set pvm = f{tilanne} where id=f{pelaaja.id}')
-    elif (results[0]['pvm'] == 0):
-        ValitaanTilanne = 0
-
-    return
+        cursor.execute(f'update tilanteet set pvm = {tilanne} where pelaaja_id={pelaaja.id}')
+        if(tilanne == 1):
+            json_paketti.append("päivä tuntuu vähän mysteeriseltä... tuntuu että pian tapahtuu jotain")
+    elif(results[0][0] == 0):
+        desc = tilanteet.valitse_tilanne()
+        new_desc = desc(id=pelaaja.id)
+        json_paketti.append(new_desc)
+        print(new_desc)
+        uus_tilanne_pvm = random.randint(7,12)
+        cursor.execute(f'update tilanteet set pvm = {uus_tilanne_pvm} where pelaaja_id={pelaaja.id}')
+    return json.dumps(json_paketti)
 
 
 
@@ -600,16 +615,17 @@ def uusi_paiva():
 def Otalainaa():
     tyytyväisyys = pelaaja.rating
     maksimi = 500000 * tyytyväisyys
-    laina = int(input(f"Olet valtuutettu lainaamaan enintään:{maksimi} Euroa. \n paljonko otat lainaa?:"))
+    #pitää muokkaa että se toimii frontendin kanssa
+    #laina = int(input(f"Olet valtuutettu lainaamaan enintään:{maksimi} Euroa. \n paljonko otat lainaa?:"))
     if pelaaja.erapaiva == None and laina <= maksimi:
         pelaaja.laina = laina * 1.2
-        pelaaja.erapaiva = pelaaja.paiva + timedelta(days=2)
+        pelaaja.erapaiva = pelaaja.paiva + timedelta(days=14)
         pelaaja.raha = pelaaja.raha + laina
-        print("Lainaa on maksettavana(+ korot):", laina*1.2, "\n Lainan eräpäivä on: ", pelaaja.erapaiva)
+        return jsonify(f"Lainaa on maksettavana(+ korot): {laina*1.2} \n Lainan eräpäivä on: {pelaaja.erapaiva}")
     elif laina > maksimi:
-        print("et ole valtuutettu liian isoon summaan")
+        return jsonify("et ole valtuutettu liian isoon summaan")
     else:
-        print(f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.")
+        return jsonify(f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.")
 
 
 
@@ -620,23 +636,23 @@ def tarkistalaina():
     if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
         return
     if pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
-        print("|||||tänään on viimeinen päivä maksaa lainat pois!|||||")
+        return jsonify("|||||tänään on viimeinen päivä maksaa lainat pois!|||||")
     elif pelaaja.paiva > pelaaja.erapaiva:
-        print("et pystynyt maksaa lainaa pois. peli päättyy")
+        return jsonify("et pystynyt maksaa lainaa pois. peli päättyy")
         #lisää tähän kommenot jossa poistetaan koko käyttäjä
-        exit()
 
     if pelaaja.raha > 0 and pelaaja.laina > 0:
         maksaraha = input(f"Sinulla on {pelaaja.laina} euroa lainaa maksettavana. haluatko maksaa pois? (j/e)") == "j"
         if (maksaraha == True):
-            maara = int(input("Kuinka paljon haluat maksaa pois lainaa? enimmäismäärä on sinun rahan määrä:"))
-            pelaaja.laina -= (maara if maara <= pelaaja.raha else 0)
-            pelaaja.raha -= (maara if maara <= pelaaja.raha else 0)
+            # pitää muokkaa että toimii frontendin kanssa
+            # maara = int(input("Kuinka paljon haluat maksaa pois lainaa? enimmäismäärä on sinun rahan määrä:"))
+            # pelaaja.laina -= (maara if maara <= pelaaja.raha else 0)
+            # pelaaja.raha -= (maara if maara <= pelaaja.raha else 0)
             print(pelaaja.laina, pelaaja.raha)
     if pelaaja.laina <= 0:
-        print("olet maksanut lainan pois! Onneksi olkoon")
         pelaaja.erapaiva = '0000-00-00'
         pelaaja.laina = 0
+        return jsonify("olet maksanut lainan pois! Onneksi olkoon")
 
 
 # def interface():
