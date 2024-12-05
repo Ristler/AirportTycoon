@@ -264,7 +264,7 @@ def ListaaLentokoneet():
 
     cursor.execute(sql)
     results = cursor.fetchall()
-    print(results)
+    print(json.dumps(results))
 
     return jsonify({results})
 
