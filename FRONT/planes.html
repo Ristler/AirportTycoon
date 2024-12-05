@@ -1,16 +1,46 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaupat</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+    <link href="css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" defer></script>
     <script src="js/planes.js" defer></script>
+    <title>Airport Tycoon</title>
 </head>
 <body>
-    <h1>Buy a Plane</h1>
-    <button onclick="haeLentokoneet()">Update planes</button>
-    <button onclick="window.location.href='/airporttycoon.html'" style="width: 200px; height: 100px;">takas?</button>
-    <ul id="planes"></ul>
-    <div id="viesti"></div>
+    <div class="sivu">
+        <header>
+            <h1><alt="sus">Plane Shop</h1>
+            
+            <nav>
+                <ul>
+                    <button onclick="window.location.href='/airporttycoon.html'" style="width: 50px; height: 50px;">Go back</button>
+                    <button style="" onclick="haeLentokoneet()">Update Planes</button>
+                </ul>
+            </nav>
+        </header>
+            <main>
+                <section id="planes">
+
+                    
+                    
+                        <article id="planes">
+                            
+                        </article>
+                        
+                    </card>
+         
+                    <div id="viesti"></div>
+                </section>
+            
+            
+        </main>
+        <footer>
+            Airport Tycoon (Scuffed Edition 1.0)
+        </footer>
+    </div>
 </body>
 </html>
