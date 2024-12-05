@@ -22,30 +22,14 @@
             <main>
                 <section id="game">
 
-                    <form id="loginForm" onsubmit="handleLogin(event)">
+                    <form style="" method="POST" id="authform">
                         <label for="username">Username:</label>
-                        <input type="text" id="username" name="username"><br><br>
-                
+                        <input type="text" id="username" name="username" required><br><br>
                         <label for="password">Password:</label>
-                        <input type="password" id="password" name="password"><br><br>
-                
-
-
-
-                        <input type="submit" value="Login">
-                        
-                    </form>
-
-                    <form id="registerForm" onsubmit="handleRegister(event)">
-                        <label for="usernameReg">Username:</label>
-                        <input type="text" id="usernameReg" name="username"><br><br>
-                
-                        <label for="passwordReg">Password:</label>
-                        <input type="password" id="passwordReg" name="password"><br><br>
-
-                        <input type="submit" value="Register">
-                        
-                    </form>
+                        <input type="password" id="password" name="password" required><br><br>
+                        <input type="button" onclick="handleLogin(event)" value="Login">
+                        <input type="button" onclick="handleRegister(event)" value="Register">
+                      </form>
                 </section>
             
             
