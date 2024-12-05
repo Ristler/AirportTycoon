@@ -393,7 +393,7 @@ def OstaLentokone():
                     if money >= hinta and not x:
                         userID = pelaaja.id
                         sql1= f"INSERT INTO `lentokone_inventory` (pelaaja_id, lentokone_id, kunto, fuel, tunniste) VALUES ({userID}, {choice}, 100, {maxfuel}, {choice})"
-                        sql2 = f"UPDATE `pelaaja` SET raha = raha - {hinta} WHERE id = {pelaaja.idd}"
+                        sql2 = f"UPDATE `pelaaja` SET raha = raha - {hinta} WHERE id = {pelaaja.id}"
                         cursor.execute(sql1)
                         cursor.execute(sql2)
                         updateUser()
@@ -414,56 +414,61 @@ def OstaLentokone():
             print("Syöte täytyy olla numero!")
 
 
-#@app.route('/ostakauppa/<int:player_id>', methods=['GET'])
-def ostakauppa(player_id):
-    query = f"SELECT id, tyyppi, hinta, teema FROM kaupat WHERE id NOT IN (SELECT kauppa_id FROM kauppa_inventory WHERE pelaaja_id = {player_id})"
-    cursor.execute(query)
+@app.route('/kaupat', methods=['GET'])
+def hae_kaupat():
+    if not pelaaja:  # Varmista, että pelaaja on kirjautuneena
+        return jsonify({"message": "Pelaaja ei ole kirjautunut."}), 401
+
+    query = """
+        SELECT id, tyyppi, hinta, teema 
+        FROM kaupat 
+        WHERE id NOT IN (
+            SELECT kauppa_id 
+            FROM kauppa_inventory 
+            WHERE pelaaja_id = %s
+        )
+    """
+    cursor.execute(query, (pelaaja.id,))
     shops = cursor.fetchall()
 
     if not shops:
-        print("Ei saatavilla olevia kauppoja.")
-        return
+        return jsonify({"message": "Ei saatavilla olevia kauppoja."}), 404
 
-    print("Saatavilla olevat kaupat:")
-    for shop in shops:
-        print(f"Kauppa ID: {shop[0]}, Nimi: {shop[1]}, Hinta: {shop[2]}, Teema: {shop[3]}")
+    kaupat = [
+        {"id": shop[0], "tyyppi": shop[1], "hinta": shop[2], "teema": shop[3]}
+        for shop in shops
+    ]
+    return jsonify(kaupat)
 
-    shop_id = int(input("Syötä haluamasi kaupan ID: "))
+@app.route('/osta_kauppa', methods=['POST'])
+def osta_kauppa():
+    if not pelaaja:  # Varmista, että pelaaja on kirjautuneena
+        return jsonify({"message": "Pelaaja ei ole kirjautunut."}), 401
 
-    selected_shop = None
-    for shop in shops:
-        if shop[0] == shop_id:
-            selected_shop = shop
-            break
+    data = request.json
+    shop_id = data.get("shop_id")
 
-    if not selected_shop:
-        print("Virheellinen syöte.")
-        return
+    # Tarkista, löytyykö kauppa ja pelaajalla varaa ostaa
+    cursor.execute("SELECT hinta FROM kaupat WHERE id = %s", (shop_id,))
+    shop = cursor.fetchone()
+    if not shop:
+        return jsonify({"message": "Kauppa ei löytynyt."}), 404
 
-    shop_price = selected_shop[2]
+    shop_price = shop[0]
 
-    query = "SELECT raha FROM pelaaja WHERE id = %s"
-    cursor.execute(query, (player_id,))
-    result = cursor.fetchone()
+    if pelaaja.raha < shop_price:
+        return jsonify({"message": "Köyhät rahat ei riitä!"}), 400
 
-    if result:
-        player_money = result[0]
+    # Päivitä pelaajan rahat ja lisää kauppa inventoryyn
+    new_balance = pelaaja.raha - shop_price
+    cursor.execute("UPDATE pelaaja SET raha = %s WHERE id = %s", (new_balance, pelaaja.id))
+    cursor.execute("INSERT INTO kauppa_inventory (pelaaja_id, kauppa_id) VALUES (%s, %s)", (pelaaja.id, shop_id))
+    connection.commit()
 
-        if player_money >= shop_price:
-            new_balance = player_money - shop_price
-            update_query = "UPDATE pelaaja SET raha = %s WHERE id = %s"
-            cursor.execute(update_query, (new_balance, player_id))
+    # Päivitä pelaajan rahatilanne
+    pelaaja.raha = new_balance
 
-            insert_query = "INSERT INTO kauppa_inventory (pelaaja_id, kauppa_id) VALUES (%s, %s)"
-            cursor.execute(insert_query, (player_id, shop_id))
-
-            connection.commit()
-
-            print(f"Pelaaja {player_id} onnistuneesti osti kaupan {shop_id}!")
-        else:
-            print("Köyhä rahat ei riitä!!!!")
-    else:
-        print("Player not found.")
+    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti kaupan {shop_id}!"})
 
 #lainaa saa vertaamalla tyytyväisyyden määrää ja eräpäivä on 2 viikkoa
 #@app.route('/otalainaa', methods=['GET'])
@@ -473,7 +478,7 @@ def Otalainaa():
     laina = int(input(f"Olet valtuutettu lainaamaan enintään:{maksimi} Euroa. \n paljonko otat lainaa?:"))
     if pelaaja.erapaiva == None and laina <= maksimi:
         pelaaja.laina = laina * 1.2
-        pelaaja.erapva = pelaaja.paiva + timedelta(days=2)
+        pelaaja.erapaiva = pelaaja.paiva + timedelta(days=2)
         pelaaja.raha = pelaaja.raha + laina
         print("Lainaa on maksettavana(+ korot):", laina*1.2, "\n Lainan eräpäivä on: ", pelaaja.erapaiva)
     elif laina > maksimi:
