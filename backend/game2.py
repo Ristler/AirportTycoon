@@ -52,25 +52,11 @@ class User:
     def __init__(self,id, nimi, raha, laina, erapaiva, paiva, rating):
         self.id = id
         self.nimi =nimi
-        self.raha = raha
+        self.raha = 500000
         self.laina = laina
         self.erapaiva = erapaiva
         self.paiva = paiva
         self.rating = rating
-
-
-##TÄTÄ EI VARMAA TARVII ENÄÄ??
-lentokone = {
-    "id" : 0,
-    "tyyppi" : "",
-    "määrä" : 0,
-    "kunto" : 0,
-    "hinta" : 0,
-    "bensa" : 0,
-    "efficiency" : 0,
-    "saapumispvm" : 0,
-    "location": ""
-}
 
 @app.route('/')
 def auth():
@@ -102,7 +88,7 @@ def login():
                     
 
 @app.route('/createplayer', methods=['POST', 'GET'])      
-
+#create player function, checks if username is taken and creates a new user.
 def createplayer():
 
     username = request.form['username']
@@ -606,59 +592,59 @@ def tarkistalaina():
         pelaaja.laina = 0
 
 
-def interface():
-    temp = vars(pelaaja)
-    for item in temp:
-        print(temp[item])
-    while(True):
-        pelaaja.paiva += timedelta(days=1)
-        print("Tänään on: ", pelaaja.paiva)
-        tarkistalaina()
-        sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
-        cursor.execute(sql)
-        results = cursor.fetchall()
-        for lentokone in results:
-            kone = getPlane(lentokone[0])
-            if lentokone[1]-1 == 0:
-                print("Kone", kone[0], " on saapunut lentokentälle")
-            if lentokone[1]  > 0:
-                pvm = lentokone[1]
-                pvm -= 1
-                sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
-                cursor.execute(sql)
+# def interface():
+#     temp = vars(pelaaja)
+#     for item in temp:
+#         print(temp[item])
+#     while(True):
+#         pelaaja.paiva += timedelta(days=1)
+#         print("Tänään on: ", pelaaja.paiva)
+#         tarkistalaina()
+#         sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
+#         cursor.execute(sql)
+#         results = cursor.fetchall()
+#         for lentokone in results:
+#             kone = getPlane(lentokone[0])
+#             if lentokone[1]-1 == 0:
+#                 print("Kone", kone[0], " on saapunut lentokentälle")
+#             if lentokone[1]  > 0:
+#                 pvm = lentokone[1]
+#                 pvm -= 1
+#                 sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
+#                 cursor.execute(sql)
 
-        while(True):
-            print("USER INTERFACE RAHA: ", pelaaja.raha)
-            print("")
-            print("Lennä (1)")
-            print("Osta lentokone (2)")
-            print("Osta kauppa (3)")
-            print("Hae pankista lainaa(4)")
-            print("Siirry toiseen päivään (5)")
-            print("Kokeile tilanteita (6) (testausta)")
-            print("Lopeta peli (0)")
-            print("")
-            inputti = str(input("Valintasi:"))
+#         while(True):
+#             print("USER INTERFACE RAHA: ", pelaaja.raha)
+#             print("")
+#             print("Lennä (1)")
+#             print("Osta lentokone (2)")
+#             print("Osta kauppa (3)")
+#             print("Hae pankista lainaa(4)")
+#             print("Siirry toiseen päivään (5)")
+#             print("Kokeile tilanteita (6) (testausta)")
+#             print("Lopeta peli (0)")
+#             print("")
+#             inputti = str(input("Valintasi:"))
 
-            match inputti:
-                case "1":
-                    prepare()
-                case "2":
-                    OstaLentokone()
-                case "3":
-                    osta_kauppa(pelaaja.id)
-                case "4":
-                    Otalainaa()
-                case "5":
+#             match inputti:
+#                 case "1":
+#                     prepare()
+#                 case "2":
+#                     OstaLentokone()
+#                 case "3":
+#                     osta_kauppa(pelaaja.id)
+#                 case "4":
+#                     Otalainaa()
+#                 case "5":
 
-                    break
-                case "6":
-                    tilanteet.erikois_vierailija(pelaaja)
-                case "0":
-                    sql = f"update pelaaja set raha = {pelaaja.raha},laina = {pelaaja.laina},eräpäivä = '{pelaaja.erapaiva}',päivä = '{pelaaja.paiva}'  ,rating = {pelaaja.rating} where id = {pelaaja.id}"
-                    cursor.execute(sql)
-                    cursor.close()
-                    exit()
+#                     break
+#                 case "6":
+#                     tilanteet.erikois_vierailija(pelaaja)
+#                 case "0":
+#                     sql = f"update pelaaja set raha = {pelaaja.raha},laina = {pelaaja.laina},eräpäivä = '{pelaaja.erapaiva}',päivä = '{pelaaja.paiva}'  ,rating = {pelaaja.rating} where id = {pelaaja.id}"
+#                     cursor.execute(sql)
+#                     cursor.close()
+#                     exit()
 
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=5000)
