@@ -33,7 +33,8 @@ async function xFunction(event) {
 
   try{
   const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
-    method: 'POST'
+    method: 'POST',
+    body: localStorage.getItem("class").id
 });
   const result = await JSON.parse(response.json());
   if(response.ok){
