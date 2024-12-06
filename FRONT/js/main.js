@@ -14,8 +14,8 @@ map.setView([60, 24], 7);
 
 
 //ONLY USED FOR TESTING NOW
-map.flyTo([40.7128, -74.0060], 12, {
-  duration: 20,      // Fly duration in seconds
+map.flyTo([39.019444, 125.738052], 12, {
+  duration: 10,      // Fly duration in seconds
   easeLinearity: 0.9 // Smoothness of the fly animation
 });
 
@@ -33,7 +33,8 @@ async function xFunction(event) {
 
   try{
   const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
-    method: 'POST'
+    method: 'POST',
+    body: localStorage.getItem("class").id
 });
   const result = await JSON.parse(response.json());
   if(response.ok){

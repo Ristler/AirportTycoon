@@ -20,22 +20,27 @@
             </nav>
         </header>
             <main>
-                <section id="game">
+                <section>
 
-                    <form style="" method="POST" id="authform">
-                        <label for="username">Username:</label>
-                        <input type="text" id="username" name="username" required><br><br>
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" required><br><br>
-                        <input type="button" onclick="handleLogin(event)" value="Login">
-                        <input type="button" onclick="handleRegister(event)" value="Register">
-                      </form>
+                    <div style="place-items: center;">
+                        <form style="text-align: center;" method="POST" id="authform">
+                            <label style="color:aliceblue" for="username">Username:</label>
+                            <input type="text" id="username" name="username" required><br><br>
+                            <label style="color: aliceblue;" for="password">Password:</label>
+                            <input type="password" id="password" name="password" required><br><br>
+                            <input type="button" onclick="handleLogin(event)" value="Login">
+                            <input type="button" onclick="handleRegister(event)" value="Register">
+                          </form>
+
+                    </div>
+
+                    
                 </section>
             
             
         </main>
         <footer>
-            Airport Tycoon (Scuffed Edition 1.0)
+            Airport Tycoon (Scuffed Edition 2.0)
         </footer>
     </div>
 </body>

@@ -1,40 +1,54 @@
+
+const userLocal = JSON.parse(localStorage.getItem("class")).user
+const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
+const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
+
+
+//Navbar user info
+const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
+const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
+const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
+
 async function haeLentokoneet() {
     const response = await fetch('/planes');
     const lentokoneLista = document.getElementById('planes');
     lentokoneLista.innerHTML = '';
 
+    
+
     if (response.ok) {
         const planes = await response.json();
         planes.forEach(plane => {
-            const li = document.createElement('li');
+            console.log("whatsup ", planes)
 
-
-            //{"id": lentokone[0], "tyyppi": lentokone[1], "kapasiteetti": lentokone[2],
-            //"hinta": lentokone[3], "efficiency": lentokone[4], "maxfuel": lentokone[5] }
-
-            //EDIT THIS TO MAKE WORK, CHECK DATABASE
-            li.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
+            const article = document.createElement('article');
+            article.classList.add('planeCard');
+           
+            article.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
             Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
 
             const ostaNappi = document.createElement('button');
             ostaNappi.textContent = 'Osta';
             ostaNappi.onclick = () => ostaLentokone(plane.id);
-            li.appendChild(ostaNappi);
-            lentokoneLista.appendChild(li);
+            article.appendChild(ostaNappi);
+            lentokoneLista.appendChild(article);
+            
+
         });
+    
     } else {
         const error = await response.json();
         lentokoneLista.innerHTML = `<li>${error.message}</li>`;
     }
 }
 
-async function ostaKauppa(shopId) {
-    const response = await fetch('/osta_kauppa', {
+
+async function ostaLentokone(planeId) {
+    const response = await fetch('/buy_plane', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shop_id: shopId })
+        body: JSON.stringify({ plane_id: planeId })
     });
-    const viesti = document.getElementById('viesti');
     const data = await response.json();
-    viesti.textContent = data.message;
+    alert(data.message)
 }
