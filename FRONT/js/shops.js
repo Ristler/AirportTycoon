@@ -1,3 +1,16 @@
+
+const userLocal = JSON.parse(localStorage.getItem("class")).user
+const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
+const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
+
+
+//Navbar user info
+const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
+const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
+const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
+
+
+
 async function haeKaupat() {
     const response = await fetch('/kaupat');
     const kaupatLista = document.getElementById('kaupat');
@@ -6,13 +19,14 @@ async function haeKaupat() {
     if (response.ok) {
         const kaupat = await response.json();
         kaupat.forEach(kauppa => {
-            const li = document.createElement('li');
-            li.textContent = `ID: ${kauppa.id}, Tyyppi: ${kauppa.tyyppi}, Hinta: ${kauppa.hinta}, Teema: ${kauppa.teema}`;
+            const article = document.createElement('article');
+            article.classList.add('planeCard');
+            article.textContent = `ID: ${kauppa.id}, Tyyppi: ${kauppa.tyyppi}, Hinta: ${kauppa.hinta}, Teema: ${kauppa.teema}`;
             const ostaNappi = document.createElement('button');
             ostaNappi.textContent = 'Osta';
             ostaNappi.onclick = () => ostaKauppa(kauppa.id);
-            li.appendChild(ostaNappi);
-            kaupatLista.appendChild(li);
+            article.appendChild(ostaNappi);
+            kaupatLista.appendChild(article);
         });
     } else {
         const error = await response.json();
@@ -26,7 +40,8 @@ async function ostaKauppa(shopId) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shop_id: shopId })
     });
-    const viesti = document.getElementById('viesti');
     const data = await response.json();
-    viesti.textContent = data.message;
+    alert(data.message)
+    haeKaupat()
 }
+haeKaupat()

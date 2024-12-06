@@ -14,13 +14,9 @@ async function haeLentokoneet() {
     const lentokoneLista = document.getElementById('planes');
     lentokoneLista.innerHTML = '';
 
-    
-
     if (response.ok) {
         const planes = await response.json();
         planes.forEach(plane => {
-            console.log("whatsup ", planes)
-
             const article = document.createElement('article');
             article.classList.add('planeCard');
            
@@ -42,7 +38,6 @@ async function haeLentokoneet() {
     }
 }
 
-
 async function ostaLentokone(planeId) {
     const response = await fetch('/buy_plane', {
         method: 'POST',
@@ -51,4 +46,7 @@ async function ostaLentokone(planeId) {
     });
     const data = await response.json();
     alert(data.message)
+    haeLentokoneet()
 }
+
+haeLentokoneet()

@@ -1,17 +1,37 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaupat</title>
+    <link href="css/style.css" rel="stylesheet">
     <script src="js/shops.js" defer></script>
+    <title>Airport Tycoon</title>
 </head>
 <body>
-    <h1>Osta kauppa</h1>
-    <button onclick="haeKaupat()">Hae kaupat</button>
-    <ul id="kaupat"></ul>
-    <div id="viesti"></div>
-    <button onclick="window.location.href='/airporttycoon.html'" style="width: 200px; height: 100px;">takas?</button>
+    <div class="sivu">
+        <header>
+            <h1><alt="sus">Buy Shops</h1>
+            <nav>
+                <ul>
+                    <button onclick="window.location.href='/airporttycoon.html'" style="width: 50px; height: 50px;">Go back</button>
 
+                    <li id="player"></li>
+                    <li id="money"></li>
+                    <li id="loans"></li>
+                </ul>
+            </nav>
+        </header>
+            <main>
+                <section>
+
+                    <div style="display: flex; flex-wrap: wrap; justify-content:center ;" id="kaupat"></div>
+
+                </section>
+        </main>
+        <footer>
+            Airport Tycoon (Scuffed Edition 2.0)
+        </footer>
+    </div>
 </body>
 </html>
