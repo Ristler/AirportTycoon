@@ -112,3 +112,51 @@ def millionare(id=None):
         results = cursor.fetchall()
         if 1000000 <= results[0]:
             return True
+        
+def smooth_operation(id=None):
+    sql = 'SELECT tracker FROM achievements WHERE pelaaja_id = {id} and achievement = "smoothoperation"'
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    track = results[0] + 1
+    sql = 'SELECT otettu FROM achievements WHERE pelaaja_id = f{id} and achievement = "smoothoperation"'
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    if track >= 10 and results == False:
+        sql = f'Update otettu SET otettu = True WHERE pelaaja_id = {id} AND achievement = "smoothoperation"'
+        cursor.execute(sql)
+        print('Olet saanut smooth operation achievement!')#do something with the website pop up thingy to notife the user customer satisfaction
+
+    sql = f'UPDATE pelaaja SET tracker = {track} WHERE pelaaja_id = {id} and achievement = "smoothoperation"'
+    cursor.execute(sql)
+
+def debt_free(id=None):
+    sql = 'SELECT otettu FROM achievements WHERE pelaaja_id = f{id} and achievement = "debt_free"'
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    if results == False:
+        sql = 'SELECT raha FROM pelaaja WHERE id = f{id}'
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        money = results[0] + 25000
+        sql = f'UPDATE pelaaja SET raha = {money} WHERE id = {id}'
+        cursor.execute(sql)
+        sql = f'Update otettu SET otettu = True WHERE pelaaja_id = {id} AND achievement = "debt_free"'
+        cursor.execute(sql)
+        print('Olet saanut Debt Free achievementin!')#do something with the website pop up thingy to notife the
+
+def airport_tycoon(id=None):
+    sql = 'SELECT otettu FROM achievements WHERE pelaaja_id = f{id} and achievement = "airport_tycoon"'
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    if results == False:
+        sql = 'SELECT raha FROM pelaaja WHERE id = f{id}'
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        money = results[0] + 50000  #can be some other reward like more actions per day if posible or just a free store or plane
+        sql = f'UPDATE pelaaja SET raha = {money} WHERE id = {id}'
+        cursor.execute(sql)
+        sql = f'Update otettu SET otettu = True WHERE pelaaja_id = {id} AND achievement = "airport_tycoon"'
+        cursor.execute(sql) 
+        print('Olet saanut Airport Tycoon achievementin!')#do something with the website pop up thingy to notife the user
+        
+    
