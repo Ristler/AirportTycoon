@@ -5,6 +5,8 @@ const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
 const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
 
 
+//test plz
+const flySound = new Audio("../audio/fly.mp3")
 
 const map = L.map('map', { tap: false });
 L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
@@ -16,6 +18,7 @@ map.setView([60, 24], 7);
 
 //This functions triggers the map animation
 function fly(latid, long) {
+  flySound.play();
   map.flyTo([latid, long], 12, {
     duration: 10,      // Fly duration in seconds
     easeLinearity: 0.9 // Smoothness of the fly animation
