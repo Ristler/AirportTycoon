@@ -5,9 +5,15 @@ const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
 const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
 
 
-//test plz
+//Audio
 const flySound = new Audio("../audio/fly.mp3")
 
+//Navbar user info
+const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
+const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
+const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
+
+//Basic map
 const map = L.map('map', { tap: false });
 L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
   maxZoom: 20,
@@ -20,18 +26,10 @@ map.setView([60, 24], 7);
 function fly(latid, long) {
   flySound.play();
   map.flyTo([latid, long], 12, {
-    duration: 10,      // Fly duration in seconds
-    easeLinearity: 0.9 // Smoothness of the fly animation
-  });
+    duration: 8.5,    
+    easeLinearity: 0.9 
+});
 }
-
-//Navbar user info
-const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
-const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
-const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
-
-
-
 
 async function listaaLentokoneet() {
   const response = await fetch('/listaa_lentokoneet');
@@ -76,10 +74,10 @@ async function valitseLentokone(planeId, lentokoneLista) {
 }
 
 
+//Delete maybe no use for this anymore
 async function xFunction(event) {
   event.preventDefault();
-  
-  // Prevent the default form submission
+
   try{
   const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
     method: 'POST',
@@ -90,7 +88,7 @@ async function xFunction(event) {
 
       console.log("LISTAALENTOKONE TESTI", result);
    } else {
-          alert(result.message);  // Show the error message
+          alert(result.message); 
       }
   } catch (error) {
       console.error('Error:', error);
@@ -99,12 +97,9 @@ async function xFunction(event) {
   }
 }
 
-
 async function ostaLentokone(event) {
   event.preventDefault();
   
-  // Prevent the default form submission
-
   try{
   const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
     method: 'POST'
@@ -114,7 +109,7 @@ async function ostaLentokone(event) {
 
       console.log("LISTAALENTOKONE TESTI", result);
    } else {
-          alert(result.message);  // Show the error message
+          alert(result.message);
       }
   } catch (error) {
       console.error('Error:', error);
