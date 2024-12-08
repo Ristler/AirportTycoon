@@ -175,13 +175,30 @@ def Tulostus(data):
 def prepare():
 
     data = request.json
-    if lentokone is None:
+    lentokone_id = data.get("plane_id")
+    print("TESTIIIIIIII", lentokone_id)
+    sql = (f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {lentokone_id} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
+    cursor.execute(sql)
+    resultss = cursor.fetchall() #resultssssssssssssssssssssssss
+                #return jsonify(resultss)
+    print(resultss)
+
+    for row in resultss:
+        lentokone["id"] = row[0]
+        lentokone["tyyppi"] = row[1]
+        lentokone["määrä"] = row[2]
+        lentokone["kunto"] = row[3]
+        lentokone["hinta"] = row[4]
+        lentokone["bensa"] = row[5]
+        lentokone["efficiency"] = row[6]
+    if lentokone is resultss[0]:
         return
+    json_paketti = {}
     print("Matkustajat nousevat koneeseen..")
     määränpää,bensa = Haetaanmaaranpaa(lentokone["bensa"], lentokone["efficiency"])
     if(määränpää == 0):
         return
-    print("Määränpää:", määränpää, "Bensankulutus:", bensa)
+    json_paketti.update({"Bensankulutus:": bensa})
 
     indeksi = 0
     tyytyväisyys = pelaaja.rating
@@ -192,27 +209,32 @@ def prepare():
         if tyytyväisyys >= randomi:
             paikka += 1
         indeksi += 1
-    print(paikka, "paikkaa varattu")
-    if planebrokey(lentokone, paikka, pelaaja.id) == False:
-        rahat = pelaaja.raha + lipunhinta * paikka
+    json_paketti.update({"Varatut paikat" : paikka})
+    #if planebrokey(lentokone, paikka, pelaaja.id) == False:
+    rahat = pelaaja.raha + lipunhinta * paikka
 
-        sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = pelaaja.id"
-        pelaaja.raha = rahat
-        cursor.execute(sql)
-        print("Plane no brokey")
-    else:
-        print("plane brokey")
-        return
+    sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = pelaaja.id"
+    pelaaja.raha = rahat
+    cursor.execute(sql)
+    json_paketti.update({"plane brokey" : False})
+    json_paketti.update({"tuotto" : lipunhinta*paikka})
+    #else:
+    #    json_paketti.update({"plane brokey" : True})
+    #    return
 
     lentokone["bensa"] = lentokone["bensa"] - bensa
-    lentokone["saapumispvm"] = 3
-    sql = f"UPDATE lentokone_inventory set fuel = {lentokone['bensa']} where lentokone_id = {lentokone['id']}"
+    json_paketti.update({"bensan kulutus" : bensa})
+    json_paketti.update({"latitude" : määränpää[1]})
+    json_paketti.update({"longitude": määränpää[2]})
+    #lentokone["saapumispvm"] = 3
+    sql = f"UPDATE lentokone_inventory set fuel = fuel - {bensa} where lentokone_id = {lentokone['id']} and pelaaja_id = {pelaaja.id}"
     cursor.execute(sql)
-    sql = f"UPDATE lentokone_inventory set saapumispvm = {lentokone['saapumispvm']} where lentokone_id = {lentokone['id']}"
-    cursor.execute(sql)
+    #sql = f"UPDATE lentokone_inventory set saapumispvm = {lentokone['saapumispvm']} where lentokone_id = {lentokone['id']}"
+    #cursor.execute(sql)
     Onkolennetty = True
+    print("JSON PAKETTI PREPARESSA:", json_paketti)
+    return jsonify(json_paketti)
     #lentomatka(lentokone)
-
 
 def Haetaanmaaranpaa(bensa, efficiency):
     MatkaKM = (bensa*3.84)/efficiency

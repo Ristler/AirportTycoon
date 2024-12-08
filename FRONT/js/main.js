@@ -5,6 +5,7 @@ const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
 const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
 
 
+
 const map = L.map('map', { tap: false });
 L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
   maxZoom: 20,
@@ -13,19 +14,18 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 map.setView([60, 24], 7);
 
 
-//ONLY USED FOR TESTING NOW
-map.flyTo([39.019444, 125.738052], 12, {
-  duration: 10,      // Fly duration in seconds
-  easeLinearity: 0.9 // Smoothness of the fly animation
-});
-
+//This functions triggers the map animation
+function fly(latid, long) {
+  map.flyTo([latid, long], 12, {
+    duration: 10,      // Fly duration in seconds
+    easeLinearity: 0.9 // Smoothness of the fly animation
+  });
+}
 
 //Navbar user info
 const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
 const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
 const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
-
-
 
 
 async function listaaLentokoneet() {
@@ -38,9 +38,10 @@ async function listaaLentokoneet() {
       const planes = await response.json();
 
       planes.forEach(plane => {
-          const li = document.createElement('li');
+          const article = document.createElement('article');
+          article.classList.add('planeCard');
 
-          li.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
+          article.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
           Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
 
 
@@ -49,16 +50,15 @@ async function listaaLentokoneet() {
           valitseNappi.textContent = 'Valitse';
 
           valitseNappi.onclick = () => valitseLentokone(plane.id);
-          li.appendChild(valitseNappi);
+          article.appendChild(valitseNappi);
           
-          lentokoneLista.appendChild(li);
+          lentokoneLista.appendChild(article);
       });
   } else {
       const error = await response.json();
       lentokoneLista.innerHTML = `<li>else lausekke help error:${error.message}</li>`;
   }
 }
-
 
 
 async function valitseLentokone(planeId) {
@@ -70,7 +70,17 @@ async function valitseLentokone(planeId) {
   });
   //const viesti = document.getElementById('viesti');
   const data = await response.json();
-  return 
+  //testi = JSON.parse(data);
+
+  console.log("plzz help", data["latitude"]);
+  const latitude = data["latitude"];
+  const longitude = data['longitude'];
+  
+  //latitude= testi["latitude"];
+
+  //console.log("wtf", latitude);
+  fly(latitude, longitude);
+
 
   //viesti.textContent = data.message;
 }
