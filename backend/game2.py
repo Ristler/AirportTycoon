@@ -546,11 +546,15 @@ def uusi_paiva():
     kauppa_tulot = math.floor(1000*maara[0]*pelaaja.rating)
     pelaaja.raha += kauppa_tulot
     pelaaja.paiva += timedelta(days=1)
-    cursor.execute(f'update on pelaaja set (raha = raha + {kauppa_tulot}, päivämäärä = f{pelaaja.paiva} where id = f{pelaaja.id}')
+    cursor.execute(f'update pelaaja set raha = raha + {kauppa_tulot}, päivä = "{pelaaja.paiva}" where id = {pelaaja.id}')
     
     
     #ota tää pois kun olet korjannut Otalainaa() ja Tarkistalainaa()
-    #tarkistalaina()
+    #konkurssi variable tarkistaa onko lentokenttämennyt konkurssiin
+    viesti,konkurssi = tarkistalaina()
+    if (konkurssi == True):
+        return jsonify(viesti)
+    json_paketti.append(viesti)
     json_paketti.append(f'kaupat tuotti tulosta: {kauppa_tulot} rahanmäärä on nyt {pelaaja.raha}')
 
     sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
@@ -575,12 +579,14 @@ def uusi_paiva():
     
     results = cursor.fetchall()
     print(results)
+    #jos ei ole tilanne päivä
     if(results[0][0] > 0):
         tilanne = results[0][0]
         tilanne -= 1
         cursor.execute(f'update tilanteet set pvm = {tilanne} where pelaaja_id={pelaaja.id}')
         if(tilanne == 1):
             json_paketti.append("päivä tuntuu vähän mysteeriseltä... tuntuu että pian tapahtuu jotain")
+    #jos on tilanne päivä        
     elif(results[0][0] == 0):
         desc = tilanteet.valitse_tilanne()
         new_desc = desc(id=pelaaja.id)
@@ -625,7 +631,7 @@ def Otalainaa():
     elif laina > maksimi:
         return jsonify("et ole valtuutettu liian isoon summaan")
     else:
-        return jsonify(f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.")
+        return jsonify (f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.", False)
 
 
 
@@ -634,26 +640,24 @@ def Otalainaa():
 def tarkistalaina():
 
     if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
-        return
+        return ("sinulla ei ole velkaa", False)
     if pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
-        return jsonify("|||||tänään on viimeinen päivä maksaa lainat pois!|||||")
-    elif pelaaja.paiva > pelaaja.erapaiva:
-        return jsonify("et pystynyt maksaa lainaa pois. peli päättyy")
+        #palauttaa json_pakettiin stringin joka menee takasin uusi_paiva funktioon
+        return "|||||tänään on viimeinen päivä maksaa lainat pois!|||||"
+    elif pelaaja.paiva > pelaaja.erapaiva and pelaaja.laina > 0:
+        cursor.execute(f"delete from achievements where id = {pelaaja.id}")
+        cursor.execute(f"delete from kauppa_inventory where pelaaja_id = {pelaaja.id}")
+        cursor.execute(f"delete from lentokone_inventory where pelaaja_id = {pelaaja.id}")
+        cursor.execute(f"delete from pelaaja where id = {pelaaja.id}")
+        return ("et pystynyt maksaa lainaa pois. peli päättyy", True)
         #lisää tähän kommenot jossa poistetaan koko käyttäjä
 
     if pelaaja.raha > 0 and pelaaja.laina > 0:
-        maksaraha = input(f"Sinulla on {pelaaja.laina} euroa lainaa maksettavana. haluatko maksaa pois? (j/e)") == "j"
-        if (maksaraha == True):
-            # pitää muokkaa että toimii frontendin kanssa
-            # maara = int(input("Kuinka paljon haluat maksaa pois lainaa? enimmäismäärä on sinun rahan määrä:"))
-            # pelaaja.laina -= (maara if maara <= pelaaja.raha else 0)
-            # pelaaja.raha -= (maara if maara <= pelaaja.raha else 0)
-            print(pelaaja.laina, pelaaja.raha)
-    if pelaaja.laina <= 0:
-        pelaaja.erapaiva = '0000-00-00'
-        pelaaja.laina = 0
-        return jsonify("olet maksanut lainan pois! Onneksi olkoon")
-
+        maara = (pelaaja.laina if pelaaja.raha >= pelaaja.laina else pelaaja.raha)
+        pelaaja.laina -= maara
+        pelaaja.raha -= maara
+        cursor.execute(f"update pelaaja set (raha = raha - {maara}, laina = laina - {maara}) where id = {pelaaja.id}")
+        return(f"Pankki velotti tililtäsi {maara} euroa, sinulla on nyt {pelaaja.laina} euroa maksamatta", False)
 
 # def interface():
 #     temp = vars(pelaaja)
