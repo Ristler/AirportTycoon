@@ -26,11 +26,60 @@ const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal
 const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
 
 
+
+
+async function listaaLentokoneet() {
+  const response = await fetch('/listaa_lentokoneet');
+
+  const lentokoneLista = document.getElementById('planes');
+  lentokoneLista.innerHTML = '';
+
+  if (response.ok) {
+      const planes = await response.json();
+
+      planes.forEach(plane => {
+          const li = document.createElement('li');
+
+          li.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
+          Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
+
+
+          const valitseNappi = document.createElement('button');
+
+          valitseNappi.textContent = 'Valitse';
+
+          valitseNappi.onclick = () => valitseLentokone(plane.id);
+          li.appendChild(valitseNappi);
+          
+          lentokoneLista.appendChild(li);
+      });
+  } else {
+      const error = await response.json();
+      lentokoneLista.innerHTML = `<li>else lausekke help error:${error.message}</li>`;
+  }
+}
+
+
+
+async function valitseLentokone(planeId) {
+
+  const response = await fetch('/prepare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plane_id: planeId })
+  });
+  //const viesti = document.getElementById('viesti');
+  const data = await response.json();
+  return 
+
+  //viesti.textContent = data.message;
+}
+
+
 async function xFunction(event) {
   event.preventDefault();
   
   // Prevent the default form submission
-
   try{
   const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
     method: 'POST',
@@ -46,6 +95,7 @@ async function xFunction(event) {
   } catch (error) {
       console.error('Error:', error);
       alert('An error occurred. Please try again later.');
+
   }
 }
 

@@ -170,8 +170,11 @@ def Tulostus(data):
 
 
 ##TODO THIS IS URGENT
-@app.route('/prepare')
+@app.route('/prepare', methods=['POST'])
+
 def prepare():
+
+    data = request.json
     if lentokone is None:
         return
     print("Matkustajat nousevat koneeseen..")
