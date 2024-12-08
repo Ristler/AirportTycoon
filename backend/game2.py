@@ -213,7 +213,7 @@ def prepare():
     #if planebrokey(lentokone, paikka, pelaaja.id) == False:
     rahat = pelaaja.raha + lipunhinta * paikka
 
-    sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = pelaaja.id"
+    sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = {pelaaja.id}"
     pelaaja.raha = rahat
     cursor.execute(sql)
     json_paketti.update({"plane brokey" : False})
@@ -222,13 +222,19 @@ def prepare():
     #    json_paketti.update({"plane brokey" : True})
     #    return
 
-    lentokone["bensa"] = lentokone["bensa"] - bensa
+    #lentokone["bensa"] = lentokone["bensa"] - bensa
+    uusibensa = lentokone["bensa"] - bensa
+    lentokone["bensa"] = uusibensa
+    
+    print(uusibensa)
     json_paketti.update({"bensan kulutus" : bensa})
     json_paketti.update({"latitude" : määränpää[1]})
     json_paketti.update({"longitude": määränpää[2]})
     #lentokone["saapumispvm"] = 3
-    sql = f"UPDATE lentokone_inventory set fuel = fuel - {bensa} where lentokone_id = {lentokone['id']} and pelaaja_id = {pelaaja.id}"
-    cursor.execute(sql)
+
+    sql2 = (f"UPDATE lentokone_inventory set fuel = {uusibensa} where lentokone_id = {lentokone_id} and pelaaja_id = {pelaaja.id}")
+    cursor.execute(sql2)
+
     #sql = f"UPDATE lentokone_inventory set saapumispvm = {lentokone['saapumispvm']} where lentokone_id = {lentokone['id']}"
     #cursor.execute(sql)
     Onkolennetty = True

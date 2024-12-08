@@ -28,6 +28,8 @@ const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal
 const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
 
 
+
+
 async function listaaLentokoneet() {
   const response = await fetch('/listaa_lentokoneet');
 
@@ -43,15 +45,11 @@ async function listaaLentokoneet() {
 
           article.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
           Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
-
-
           const valitseNappi = document.createElement('button');
-
           valitseNappi.textContent = 'Valitse';
-
-          valitseNappi.onclick = () => valitseLentokone(plane.id);
+          valitseNappi.onclick = () => valitseLentokone(plane.id, lentokoneLista);
           article.appendChild(valitseNappi);
-          
+
           lentokoneLista.appendChild(article);
       });
   } else {
@@ -60,29 +58,18 @@ async function listaaLentokoneet() {
   }
 }
 
-
-async function valitseLentokone(planeId) {
+async function valitseLentokone(planeId, lentokoneLista) {
+  lentokoneLista.innerHTML = '';
 
   const response = await fetch('/prepare', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ plane_id: planeId })
   });
-  //const viesti = document.getElementById('viesti');
   const data = await response.json();
-  //testi = JSON.parse(data);
-
-  console.log("plzz help", data["latitude"]);
   const latitude = data["latitude"];
   const longitude = data['longitude'];
-  
-  //latitude= testi["latitude"];
-
-  //console.log("wtf", latitude);
   fly(latitude, longitude);
-
-
-  //viesti.textContent = data.message;
 }
 
 
