@@ -1,3 +1,8 @@
+//TODO!
+//STARTING POINT HELSINKI VANTAA AIRPORT. MAKE SURE TO FLY BACK TO VANTAA.
+//LOCALSTORAGE NEEDS TO BE UPDATED WHEN USER BUYS STUFF
+//IF PLANE DOESN'T HAVE ENOUGH FUEL TO FLY, FIX ERROR CAUSING CRASH.
+//ADD REFUELING 
 
 //Gets user id and name from localstorage. -> saved in auth.js
 const userLocal = JSON.parse(localStorage.getItem("class")).user
@@ -55,7 +60,7 @@ async function listaaLentokoneet() {
       });
   } else {
       const error = await response.json();
-      lentokoneLista.innerHTML = `<li>else lausekke help error:${error.message}</li>`;
+      lentokoneLista.innerHTML = `<li>${error.message}</li>`;
   }
 }
 
@@ -71,6 +76,7 @@ async function valitseLentokone(planeId, lentokoneLista) {
   const latitude = data["latitude"];
   const longitude = data['longitude'];
   fly(latitude, longitude);
+  
 }
 
 

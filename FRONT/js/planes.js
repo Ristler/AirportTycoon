@@ -20,8 +20,8 @@ async function haeLentokoneet() {
             const article = document.createElement('article');
             article.classList.add('planeCard');
            
-            article.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
-            Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
+            article.textContent = `ID: ${plane.id}, Type: ${plane.tyyppi}, Capacity: ${plane.kapasiteetti},
+            Price: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
 
             const ostaNappi = document.createElement('button');
             ostaNappi.textContent = 'Osta';
