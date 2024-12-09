@@ -23,14 +23,14 @@ class tilanteet():
     def __init__(self):
         pass
     def myrsky(self,id):
-        sql = f'update lentokone_inventory set saapumispvm = 4 where pelaaja_id = {id}'
+        sql = f'update lentokone_inventory set saapumispvm = 4 wherE pelaaja_id = {id}'
         desc = '''
 MYRSKY TULOSSA!! ET VOI LENTÄÄ KOLMEEN SEURAAVAAN PÄIVÄÄN'''
         cursor.execute(sql)
         return desc
     
     def erikois_vierailija(self,id):
-        sql = f'select count(kauppa_id) from kauppa_inventory where pelaaja_id = {id}'
+        sql = f'select count(kauppa_id) from kauppa_inventory wherE pelaaja_id = {id}'
         cursor.execute(sql)
         kaupat = cursor.fetchall()
         kauppa_tulot = 2000*kaupat[0][0]
@@ -80,7 +80,7 @@ def first_flight(id=None):
 
 def Frequent_Flyer(id=None, lennetty=None):
     if lennetty is True:
-        sql = f'SELECT taken From achievements WHERE pelaaja_id = {id} and name = "frequent_flyer"'
+        sql = f'SELECT taken From achievements WHERE id = {id} and name = "frequent_flyer"'
         cursor.execute(sql)
         results = cursor.fetchall()
         if results[0][0] == False:
@@ -88,26 +88,26 @@ def Frequent_Flyer(id=None, lennetty=None):
             cursor.execute(sql)
             results = cursor.fetchall()
             if results[0][0] >= 20:
-                sql = f'Update taken SET taken = True WHERE pelaaja_id = {id} AND name = "frequent_flyer"'
+                sql = f'Update taken SET taken = True WHERE id = {id} AND name = "frequent_flyer"'
                 cursor.execute(sql)
                 print('Olet saanut Frequent name!')#do something with the website pop up thingy to notife the user
                 
                 return None 
             else:
-                sql = f'SELECT tracker From achievements WHERE pelaaja_id = {id} and name = "frequent_flyer"'
+                sql = f'SELECT tracker From achievements WHERE id = {id} and name = "frequent_flyer"'
                 cursor.execute(sql)
                 results = cursor.fetchall()
                 diipadaabasuckmeoff = results[0][0] + 1
-                sql = f'UPDATE pelaaja SET tracker = {diipadaabasuckmeoff} WHERE pelaaja_id = {id} and name = "frequent_flyer"'
+                sql = f'UPDATE pelaaja SET tracker = {diipadaabasuckmeoff} WHERE id = {id} and name = "frequent_flyer"'
                 cursor.execute(sql)
 
 def packed_planes(id=None, matkustajat=None, kapasiteetti=None):
     if matkustajat == kapasiteetti:
-        sql = f'SELECT taken FROM achievements WHERE pelaaja_id = {id} and name = "packed_planes"'
+        sql = f'SELECT taken FROM achievements WHERE id = {id} and name = "packed_planes"'
         cursor.execute(sql)
         results = cursor.fetchall()
         if results[0][0] == False:
-            sql = f'Update taken SET taken = True WHERE pelaaja_id = {id} AND name = "packed_planes"'
+            sql = f'Update taken SET taken = True WHERE id = {id} AND name = "packed_planes"'
             cursor.execute(sql)
             #alennus tai vitust rahaa
             print('Olet saanut Packed name!')#do something with the website pop up thingy to notife the user
@@ -116,7 +116,7 @@ def packed_planes(id=None, matkustajat=None, kapasiteetti=None):
     
 
 def millionares(id=None):
-    sql = f'SELECT taken FROM achievements WHERE pelaaja_id = {id} and name = "millionare"'
+    sql = f'SELECT taken FROM achievements WHERE id = {id} and name = "millionare"'
     cursor.execute(sql)
     results = cursor.fetchall()
     if results[0][0] == False:
@@ -127,23 +127,23 @@ def millionares(id=None):
             return True
         
 def smooth_operation(id=None):
-    sql = f'SELECT tracker FROM achievements WHERE pelaaja_id = {id} and name = "smoothoperation"'
+    sql = f'SELECT tracker FROM achievements WHERE id = {id} and name = "smoothoperation"'
     cursor.execute(sql)
     results = cursor.fetchall()
     track = results[0][0] + 1
-    sql = f'SELECT taken FROM achievements WHERE pelaaja_id = {id} and name = "smoothoperation"'
+    sql = f'SELECT taken FROM achievements WHERE id = {id} and name = "smoothoperation"'
     cursor.execute(sql)
     results = cursor.fetchall()
     if track[0][0] >= 10 and results[0][0] == False:
-        sql = f'Update taken SET taken = True WHERE pelaaja_id = {id} AND name = "smoothoperation"'
+        sql = f'Update taken SET taken = True WHERE id = {id} AND name = "smoothoperation"'
         cursor.execute(sql)
         print('Olet saanut smooth operation name!')#do something with the website pop up thingy to notife the user customer satisfaction
 
-    sql = f'UPDATE pelaaja SET tracker = {track} WHERE pelaaja_id = {id} and name = "smoothoperation"'
+    sql = f'UPDATE pelaaja SET tracker = {track} WHERE id = {id} and name = "smoothoperation"'
     cursor.execute(sql)
 
 def debt_free(id=None):
-    sql = f'SELECT taken FROM achievements WHERE pelaaja_id = {id} and name = "debt_free"'
+    sql = f'SELECT taken FROM achievements WHERE id = {id} and name = "debt_free"'
     cursor.execute(sql)
     results = cursor.fetchall()
     if results[0][0] == False:
@@ -153,12 +153,12 @@ def debt_free(id=None):
         money = results[0][0] + 25000
         sql = f'UPDATE pelaaja SET raha = {money} WHERE id = {id}'
         cursor.execute(sql)
-        sql = f'Update taken SET taken = True WHERE pelaaja_id = {id} AND name = "debt_free"'
+        sql = f'Update taken SET taken = True WHERE id = {id} AND name = "debt_free"'
         cursor.execute(sql)
         print('Olet saanut Debt Free namein!')#do something with the website pop up thingy to notife the
 
 def airport_tycoon(id=None):
-    sql = 'SELECT taken FROM achievements WHERE pelaaja_id = f{id} and name = "airport_tycoon"'
+    sql = 'SELECT taken FROM achievements WHERE id = f{id} and name = "airport_tycoon"'
     cursor.execute(sql)
     results = cursor.fetchall()
     if results[0][0] == False:
@@ -168,7 +168,7 @@ def airport_tycoon(id=None):
         money = results[0][0] + 50000  #can be some other reward like more actions per day if posible or just a free store or plane
         sql = f'UPDATE pelaaja SET raha = {money} WHERE id = {id}'
         cursor.execute(sql)
-        sql = f'Update taken SET taken = True WHERE pelaaja_id = {id} AND name = "airport_tycoon"'
+        sql = f'Update taken SET taken = True WHERE id = {id} AND name = "airport_tycoon"'
         cursor.execute(sql) 
         print('Olet saanut Airport Tycoon namein!')#do something with the website pop up thingy to notife the user
         

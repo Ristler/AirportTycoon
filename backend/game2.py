@@ -211,7 +211,7 @@ def prepare():
     data = request.json
     lentokone_id = data.get("plane_id")
     #print("TESTIIIIIIII", lentokone_id)
-    sql = (f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {lentokone_id} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
+    sql = (f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency, lentokone.kapasiteetti from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {lentokone_id} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
     cursor.execute(sql)
     resultss = cursor.fetchall() #resultssssssssssssssssssssssss
                 #return jsonify(resultss)
@@ -225,6 +225,7 @@ def prepare():
         lentokone["hinta"] = row[4]
         lentokone["bensa"] = row[5]
         lentokone["efficiency"] = row[6]
+        lentokone["kapasiteetti"] = row[7]
     json_paketti = {}
     
 
@@ -237,10 +238,11 @@ def prepare():
     if(määränpää == 0):
         return jsonify("määränpäätä ei saatu")
 
-    #else:
-    #    json_paketti.update({"plane brokey" : True})
-    #    return
-
+    if planebrokey(lentokone, lentokone["kapasiteetti"], pelaaja.id) == False:
+        json_paketti.update({"plane_brokey" : False})
+    else:
+        json_paketti.update({"plane brokey" : True})
+        return jsonify({"Varoitus" : "Lentokone on rikki", "muunettu raha" : pelaaja.raha})
     #lentokone["bensa"] = lentokone["bensa"] - bensa
     uusibensa = lentokone["bensa"] - bensa
     lentokone["bensa"] = uusibensa
@@ -258,6 +260,8 @@ def prepare():
     sql = f"UPDATE lentokone_inventory set saapumispvm = {lentokone['saapumispvm']} where lentokone_id = {lentokone['id']}"
     cursor.execute(sql)
     Onkolennetty = True
+    if Onkolennetty == True:
+        Frequent_Flyer(pelaaja.id, Onkolennetty)
     print("JSON PAKETI PREPISSÄ", json_paketti)
     return jsonify(json_paketti)
     #lentomatka(lentokone)
@@ -287,14 +291,14 @@ def ticket_price():
         if tyytyväisyys >= randomi:
             paikka += 1
         indeksi += 1
+    
     json_paketti.update({"Varatut paikat" : paikka, "lipunhinta": pelaajanhinta})
-    #if planebrokey(lentokone, paikka, pelaaja.id) == False:
-    rahat = pelaaja.raha + lipunhinta * paikka
+    rahat = pelaaja.raha + paikka*lipunhinta
 
     sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = {pelaaja.id}"
     pelaaja.raha = rahat
     cursor.execute(sql, multi=True)
-    json_paketti.update({"plane_brokey" : False})
+
     json_paketti.update({"bensa": bensa})
     json_paketti.update({"new_balance" : pelaaja.raha+lipunhinta*paikka})
     print("JSON PAKETTI PREPARE CONFIRMISSA: ", json_paketti)
@@ -406,8 +410,7 @@ def planebrokey(kone, asiakkaat, pelaajaid):
     kunto = kunto - 5
     sql = f"UPDATE lentokone_inventory set kunto = {kunto} where lentokone_id = {kone['id']}"
     cursor.execute(sql)
-    lentokone["kunto"] = lentokone["kunto"] - 5
-
+    lentokone["kunto"] = lentokone["kunto"]
     rikki_randomi = random.random()
     if kunto < 60:
         if kunto*0.7/100 < rikki_randomi:
@@ -415,19 +418,20 @@ def planebrokey(kone, asiakkaat, pelaajaid):
             cursor.execute(sql)
             raha = cursor.fetchall()[0][0]
             raha = raha - (asiakkaat * 100)
-            raha = raha - (asiakkaat * 200)
+
+            print("LENTOKONE PASKANA 1.", lentokone["kunto"])
             sql = f"UPDATE pelaaja SET raha = {raha} WHERE id = {pelaajaid}"
-            pelaaja.id = raha
+            pelaaja.raha = raha
             cursor.execute(sql)
             return True
     elif kunto < 80:
         if kunto*0.9/100 < rikki_randomi:
+            print("LENTOKONE PASKANA 2.", lentokone["kunto"])
             sql = f"SELECT raha FROM pelaaja where id = {pelaajaid}"
             cursor.execute(sql)
             raha = cursor.fetchall()[0][0]
             print(raha)
             raha = raha - (asiakkaat * 100)
-            raha = raha - (asiakkaat * 200)
             sql = f"UPDATE pelaaja SET raha = {raha} WHERE id = {pelaajaid}"
             pelaaja.raha = raha
             cursor.execute(sql)
