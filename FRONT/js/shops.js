@@ -1,4 +1,5 @@
 
+
 //Gets user id and name from localstorage. -> saved in auth.js
 const userLocal = JSON.parse(localStorage.getItem("class")).user
 const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
@@ -18,16 +19,22 @@ async function haeKaupat() {
     const response = await fetch('/kaupat');
     const kaupatLista = document.getElementById('kaupat');
     kaupatLista.innerHTML = '';
+   
 
     if (response.ok) {
         const kaupat = await response.json();
         kaupat.forEach(kauppa => {
             const article = document.createElement('article');
+            const img = document.createElement('img');
+            img.src = `/assets/${kauppa.id}.png`;
+            img.classList.add('shopsImg');
+
             article.classList.add('planeCard');
             article.textContent = `ID: ${kauppa.id}, Tyyppi: ${kauppa.tyyppi}, Hinta: ${kauppa.hinta}, Teema: ${kauppa.teema}`;
             const ostaNappi = document.createElement('button');
             ostaNappi.textContent = 'Osta';
             ostaNappi.onclick = () => ostaKauppa(kauppa.id);
+            article.appendChild(img)
             article.appendChild(ostaNappi);
             kaupatLista.appendChild(article);
         });

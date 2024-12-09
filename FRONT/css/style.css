@@ -185,6 +185,13 @@ section figure {
 
 
 }
+.shopsImg {
+    width: 60%;
+    height: 60%;
+    margin-bottom: 50px;
+
+
+}
 
 .desc {
     text-align: center;
