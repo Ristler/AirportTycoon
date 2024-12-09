@@ -45,7 +45,7 @@ header h1 img {
 
 nav {
     position: fixed;
-    width: 30%;
+    width: 60%;
     
 }
 
@@ -54,9 +54,10 @@ ul {
     display: flex;
     list-style-type: none;
     justify-content: space-evenly;
-    background-color: #2559a9;
-    padding: 0px;
+    background-color: #1b3f7a;
+    padding: 0;
     margin: 0;
+
 }
 
 
@@ -84,8 +85,10 @@ p {
     
 }
 
-li {
-    width: calc(100% / 3)
+.bordered {
+    width: calc(100% / 3); /* Or any other width you want */
+    border: 2px solid black;
+    border-radius: 5px;
 }
 
 li a {
