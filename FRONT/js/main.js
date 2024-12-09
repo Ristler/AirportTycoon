@@ -5,19 +5,18 @@
 //ADD REFUELING 
 function local_info_update(){
 //Gets user id and name from localstorage. -> saved in auth.js
-const userLocal = JSON.parse(localStorage.getItem("class")).user
-const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
-const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
-const daysLocal = JSON.parse(localStorage.getItem("class")).Päivä
-const loanexpirationLocal = JSON.parse(localStorage.getItem("class")).Eräpäivä
-
+  const userLocal = JSON.parse(localStorage.getItem("class")).user
+  const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
+  const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
+  const daysLocal = JSON.parse(localStorage.getItem("class")).Päivä
+  const loanexpirationLocal = JSON.parse(localStorage.getItem("class")).Eräpäivä
 
 //Navbar user info
-const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
-const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
-const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
-const days = document.querySelector("#days").innerHTML = "Days: "+ daysLocal 
-const loansexpiration = document.querySelector("#loanexpiration").innerHTML = "Loan expiration: "+ loanexpirationLocal
+  const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
+  const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
+  const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
+  const days = document.querySelector("#days").innerHTML = "Days: "+ daysLocal 
+  const loansexpiration = document.querySelector("#loanexpiration").innerHTML = "Loan expiration: "+ loanexpirationLocal
 }
 local_info_update();
 //audio for plane flight
@@ -99,10 +98,11 @@ async function valitseLentokone(planeId, lentokoneLista) {
   const latitude = data["latitude"];
   const longitude = data['longitude'];
   const bensankulutus = data["bensan kulutus"];
+  const kohde = data["kohde"];
   fly(latitude, longitude, 8, true);
-  await new Promise(r => setTimeout(r, 8000));
-  ticketprice(bensankulutus);
-  let x = confirm('lensit xyz lipunhinta xyz')
+  await new Promise(r => setTimeout(r, 500));
+  const data2 = ticketprice(bensankulutus);
+  let x = confirm('määränpää: ' + kohde + '\nlipunhinta: ' + data2["lipunhinta"] + '\ntyytväisyys: ' + data2["Tyytyväisyys"]);
   if (x == true) {
     fly(60.3, 24.9, 0.1, false);
 }
@@ -126,7 +126,7 @@ async function ticketprice(bensankulutus) {
 
 
   console.log("testiiiiii", data)
-
+  return data
 
 }
 

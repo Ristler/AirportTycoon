@@ -247,6 +247,7 @@ def prepare():
     
    # print(uusibensa)
     json_paketti.update({"bensan kulutus" : bensa})
+    json_paketti.update({"kohde" : määränpää[3]})
     json_paketti.update({"latitude" : määränpää[1]})
     json_paketti.update({"longitude": määränpää[2]})
     lentokone["saapumispvm"] = 3
@@ -735,10 +736,11 @@ def uusi_paiva():
     konkurssi = False
     if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
         viesti = "sinulla ei ole velkaa"
+        json_paketti.update({"viesti":viesti})
         konkurssi = False
     elif pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
 
-        viesti = "|||||tänään on viimeinen päivä maksaa lainat pois!|||||"
+        json_paketti.update({ "varoitus":"|||||tänään on viimeinen päivä maksaa lainat pois!|||||"})
         konkurssi = False
     elif pelaaja.paiva > pelaaja.erapaiva and pelaaja.laina > 0:
         cursor.execute(f"delete from achievements where id = {pelaaja.id}")
@@ -751,22 +753,23 @@ def uusi_paiva():
 
     if (konkurssi == True):
         return jsonify({"viesti":viesti})
-    json_paketti.update({"viesti":viesti})
+
     json_paketti.update({"kauppatulot" : kauppa_tulot, "rahanmäärä":pelaaja.raha})
 
-    sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
+    sql = f"select lentokone_id, saapumispvm lentokone_inventory  from lentokone_inventory WHERE lentokone_inventory.pelaaja_id = {pelaaja.id}"
     cursor.execute(sql)
     results = cursor.fetchall()
     for lentokone in results:
         kone = getPlane(lentokone[0])
         if lentokone[1]-1 == 0:
-            json_paketti.update({f"Kone f{kone[0]} on saapunut lentokentälle"})
+            json_paketti.update({f"Kone f{kone[1]} on saapunut lentokentälle"})
 
-            if lentokone[1]  > 0:
-                pvm = lentokone[1]
-                pvm -= 1
-                sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
-                cursor.execute(sql)
+        if lentokone[1]  > 0:
+            pvm = lentokone[1]
+            print(pvm)
+            pvm -= 1
+            sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
+            cursor.execute(sql)
     global Onkolennetty
     if Onkolennetty == True:
         Onkolennetty = False #Lisää frequent flyer achievement function
@@ -786,7 +789,7 @@ def uusi_paiva():
     elif(results[0][0] == 0):
         desc = tilanteet.valitse_tilanne()
         new_desc = desc(id=pelaaja.id)
-        json_paketti.append({"tilannekuvaus":new_desc})
+        json_paketti.update({"tilannekuvaus":new_desc})
         print(new_desc)
         uus_tilanne_pvm = random.randint(7,12)
         cursor.execute(f'update tilanteet set pvm = {uus_tilanne_pvm} where pelaaja_id={pelaaja.id}')
