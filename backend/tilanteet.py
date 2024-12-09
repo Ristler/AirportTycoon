@@ -84,7 +84,7 @@ def Frequent_Flyer(id=None, lennetty=None):
         cursor.execute(sql)
         results = cursor.fetchall()
         if results[0][0] == False:
-            sql = f'SELECT tracker FROM pelaaja WHERE id = {id}'
+            sql = f'SELECT tracker FROM achievements WHERE id = {id}'
             cursor.execute(sql)
             results = cursor.fetchall()
             if results[0][0] >= 20:
@@ -143,7 +143,7 @@ def smooth_operation(id=None, broken=None):
     cursor.execute(sql)
     results = cursor.fetchall()
     track = results[0][0] + 1
-    if track[0][0] >= 10 and otettu == False:
+    if track >= 10 and otettu == False:
         sql = f'Update achievements SET taken = True WHERE id = {id} AND name = "smoothoperation"'
         cursor.execute(sql)
         print('Olet saanut smooth operation name!')#do something with the website pop up thingy to notife the user customer satisfaction

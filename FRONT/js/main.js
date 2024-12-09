@@ -100,7 +100,7 @@ async function valitseLentokone(planeId, lentokoneLista) {
       body: JSON.stringify({ plane_id: planeId })
   });
   const data = await response.json();
-  if(data["plane_brokey"] == True){
+  if(data["plane_brokey"] == true){
     let y = alert("Lentokone meni rikki \nuusi balanssi: ")
   }
   const latitude = data["latitude"];
