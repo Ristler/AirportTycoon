@@ -14,9 +14,6 @@ const loansexpiration = document.querySelector("#loanexpiration").innerHTML = "L
 
 
 
-
-
-
 async function fetchAchievements() {
     const response = await fetch('/achivs');
     console.log(response);  
@@ -28,7 +25,7 @@ async function fetchAchievements() {
         achievements.forEach(achievement => {
             const article = document.createElement('article');
            
-            article.textContent = `name: ${achievement.name} description : ${achievement.description}`;
+            article.textContent = `${achievement.description}`;
 
             achlist.appendChild(article);
         });
