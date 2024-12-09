@@ -1,17 +1,39 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaupat</title>
+    <link href="css/style.css" rel="stylesheet">
     <script src="js/shops.js" defer></script>
+    <title>Airport Tycoon</title>
 </head>
 <body>
-    <h1>Osta kauppa</h1>
-    <button onclick="haeKaupat()">Hae kaupat</button>
-    <ul id="kaupat"></ul>
-    <div id="viesti"></div>
-    <button onclick="window.location.href='/airporttycoon.html'" style="width: 200px; height: 100px;">takas?</button>
+    <div class="sivu">
+        <header>
+            <h1><alt="sus">Buy Shops
+                <button onclick="window.location.href='/airporttycoon.html'" style="width: 100px; height: 50px; border-radius: 20px;">Home</button>
+            </h1>
+            <nav>
+                <ul>
+                    
 
+                    <li style="color:antiquewhite" id="player"></li>
+                    <li style="color:antiquewhite" id="money"></li>
+                    <li style="color: antiquewhite;" id="loans"></li>
+                </ul>
+            </nav>
+        </header>
+            <main>
+                <section>
+
+                    <div style="display: flex; flex-wrap: wrap; justify-content:center ;" id="kaupat"></div>
+
+                </section>
+        </main>
+        <footer>
+            Airport Tycoon
+        </footer>
+    </div>
 </body>
 </html>
