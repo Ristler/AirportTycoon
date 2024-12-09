@@ -107,6 +107,16 @@ def createplayer():
         return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
                         "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
                         "rating": pelaaja.rating})
+    sql3 = {f"INSERT INTO achievements (id, name, taken, description) VALUES 
+        ({pelaaja.id}, 'ekalento', False, 'Successfully complete your first flight.'),
+        ({pelaaja.id}, 'frequent_flyer', False, 'Complete 20 flights.'),
+	    ({pelaaja.id}, 'packed_planes', False, 'Fill a plane to 100% capacity for the first time.'),
+	    ({pelaaja.id}, 'millionare', False, 'Earn $1,000,000 in total revenue.'),
+	    ({pelaaja.id}, 'smoothoperation', False, 'Go 15 days without any canceled flights.'),
+	    ({pelaaja.id}, 'debt_free', False, 'Fully repay your first loan.'),
+	    ({pelaaja.id}, 'airport_tycoon', False, 'Own 10 planes .')"}
+    cursor.execute(sql3)
+    
     if isNameTaken(username):
         return jsonify({"message": "Username is already taken"}), 400
 
