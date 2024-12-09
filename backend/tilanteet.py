@@ -56,9 +56,10 @@ MYRSKY TULOSSA!! ET VOI LENTÄÄ KOLMEEN SEURAAVAAN PÄIVÄÄN'''
 
 @app.route('/achievements', methods=['GET'])
 
-def fetch_achievements(id):
+def fetch_achievements():
     
-    sql = f'SELECT * FROM achievements WHERE id = {id}'
+    player_id = request.args.get('id', type=int)
+    sql = f'SELECT * FROM achievements WHERE pelaaja_id = {player_id}'
     cursor.execute(sql)
     results = cursor.fetchall()
     return jsonify(results)
