@@ -24,17 +24,18 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
   maxZoom: 20,
   subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
 }).addTo(map);
-map.setView([60, 24], 7);
+map.setView([60.3, 24.9], 7);
 
 
 //This functions triggers the map animation
-function fly(latid, long) {
-  flySound.play();
+function fly(latid, long, duration, sound) {
+  if (sound) flySound.play();
   map.flyTo([latid, long], 12, {
-    duration: 8.5,    
-    easeLinearity: 0.9 
+    duration: duration,    
+    easeLinearity: 1.9 
 });
 }
+
 
 async function listaaLentokoneet() {
   const response = await fetch('/listaa_lentokoneet');
@@ -75,8 +76,11 @@ async function valitseLentokone(planeId, lentokoneLista) {
   const data = await response.json();
   const latitude = data["latitude"];
   const longitude = data['longitude'];
-  fly(latitude, longitude);
-  
+  fly(latitude, longitude, 8, true);
+  await new Promise(r => setTimeout(r, 10000));
+  let x = confirm('lensit xyz lipunhinta xyz')
+  if (x == true) {
+    fly(60.3, 24.9, 0, false);
 }
 
 
@@ -126,3 +130,4 @@ async function ostaLentokone(event) {
 
 
 
+}

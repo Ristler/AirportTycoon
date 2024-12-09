@@ -107,6 +107,18 @@ def createplayer():
         return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
                         "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
                         "rating": pelaaja.rating})
+        
+
+    sql3 = {f"INSERT INTO achievements (id, name, taken, description) VALUES 
+        ({pelaaja.id}, 'ekalento', False, 'Successfully complete your first flight.'),
+        ({pelaaja.id}, 'frequent_flyer', False, 'Complete 20 flights.'),
+	    ({pelaaja.id}, 'packed_planes', False, 'Fill a plane to 100% capacity for the first time.'),
+	    ({pelaaja.id}, 'millionare', False, 'Earn $1,000,000 in total revenue.'),
+	    ({pelaaja.id}, 'smoothoperation', False, 'Go 15 days without any canceled flights.'),
+	    ({pelaaja.id}, 'debt_free', False, 'Fully repay your first loan.'),
+	    ({pelaaja.id}, 'airport_tycoon', False, 'Own 10 planes .')"}
+    cursor.execute(sql3)
+    
     if isNameTaken(username):
         return jsonify({"message": "Username is already taken"}), 400
 
@@ -191,13 +203,11 @@ def prepare():
         lentokone["hinta"] = row[4]
         lentokone["bensa"] = row[5]
         lentokone["efficiency"] = row[6]
-    if lentokone is resultss[0]:
-        return
     json_paketti = {}
     print("Matkustajat nousevat koneeseen..")
     määränpää,bensa = Haetaanmaaranpaa(lentokone["bensa"], lentokone["efficiency"])
     if(määränpää == 0):
-        return
+        return jsonify("määränpäätä ei saatu")
     json_paketti.update({"Bensankulutus:": bensa})
 
     indeksi = 0
@@ -217,7 +227,7 @@ def prepare():
     pelaaja.raha = rahat
     cursor.execute(sql)
     json_paketti.update({"plane brokey" : False})
-    json_paketti.update({"tuotto" : lipunhinta*paikka})
+    json_paketti.update({"new_balance" : pelaaja.raha+lipunhinta*paikka})
     #else:
     #    json_paketti.update({"plane brokey" : True})
     #    return
@@ -241,6 +251,11 @@ def prepare():
     print("JSON PAKETTI PREPARESSA:", json_paketti)
     return jsonify(json_paketti)
     #lentomatka(lentokone)
+def prepare_confirm():
+    data = request.json
+    
+    pass
+
 
 def Haetaanmaaranpaa(bensa, efficiency):
     MatkaKM = (bensa*3.84)/efficiency
@@ -328,7 +343,10 @@ def valitseLentokone():
             return jsonify({"error": "MISINPUT IT WAS A MISINPUT"})
         return jsonify(lentokone)
 
-    
+def korjaa_lentokone():
+    data = request.json
+    planeId = data["plane_id"]
+    cursor.execute(f"select kunto from lentokone_inventory where lentokone_id = {planeId}")
 
 
 ##PROBABLY BROKEN
@@ -471,6 +489,7 @@ def hae_kaupat():
 
 @app.route('/osta_kauppa', methods=['POST'])
 def osta_kauppa():
+    json_paketti = {}
     if not pelaaja:  # Varmista, että pelaaja on kirjautuneena
         return jsonify({"message": "Pelaaja ei ole kirjautunut."}), 401
 
@@ -497,7 +516,7 @@ def osta_kauppa():
     # Päivitä pelaajan rahatilanne
     pelaaja.raha = new_balance
 
-    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti kaupan {shop_id}!"})
+    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti kaupan {shop_id}!", "new_balance" : new_balance})
 
 
 
@@ -545,13 +564,14 @@ def osta_lentokone():
     plane_id = data.get("plane_id")
     
     # Tarkista, löytyykö lentokone ja pelaajalla varaa ostaa
-    cursor.execute("SELECT hinta FROM lentokone WHERE id = %s", (plane_id,))
+    cursor.execute("SELECT hinta, maxfuel FROM lentokone WHERE id = %s", (plane_id,))
     plane = cursor.fetchone()
     plane1 = str(plane_id)
     if not plane:
         return jsonify({"message": "Lentokonetta ei löytynyt.Id on "+plane1}), 404
 
     plane_price = plane[0]
+    plane_maxfuel = plane[1]
 
     if pelaaja.raha < plane_price:
         return jsonify({"message": "Köyhät rahat ei riitä!"}), 400
@@ -559,13 +579,44 @@ def osta_lentokone():
     # Päivitä pelaajan rahat ja lisää kauppa inventoryyn
     new_balance = pelaaja.raha - plane_price
     cursor.execute("UPDATE pelaaja SET raha = %s WHERE id = %s", (new_balance, pelaaja.id))
-    cursor.execute("INSERT INTO lentokone_inventory (pelaaja_id, lentokone_id) VALUES (%s, %s)", (pelaaja.id, plane_id))
-    connection.commit()
+    cursor.execute("INSERT INTO lentokone_inventory (pelaaja_id, lentokone_id, fuel, kunto) VALUES (%s, %s, %s, %s)", (pelaaja.id, plane_id, plane_maxfuel, 100))
 
     # Päivitä pelaajan rahatilanne
     pelaaja.raha = new_balance
 
-    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti lentokoneen {plane_id}!"})
+    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti lentokoneen {plane_id}!", "new_balance": new_balance})
+
+@app.route('/refuel', methods=['POST'])
+def refuel():
+    if not pelaaja:  # Varmista, että pelaaja on kirjautuneena
+        return jsonify({"message": "Pelaaja ei ole kirjautunut."}), 401
+
+    data = request.json
+    plane_id = data.get("plane_id")
+    
+    # Tarkista, löytyykö lentokone ja pelaajalla varaa ostaa
+    cursor.execute("SELECT maxfuel FROM lentokone WHERE id = %s", (plane_id,))
+    plane = cursor.fetchone()
+    plane1 = str(plane_id)
+    if not plane:
+        return jsonify({"message": "Lentokonetta ei löytynyt.Id on "+plane1}), 404
+
+    
+    plane_maxfuel = plane[0]
+
+
+    # Päivitä pelaajan rahat ja lisää kauppa inventoryyn
+    fuel_price = 0
+    new_balance = pelaaja.raha - fuel_price
+    cursor.execute("UPDATE pelaaja SET raha = %s WHERE id = %s", (new_balance, pelaaja.id))
+    cursor.execute("UPDATE lentokone_inventory SET fuel = %s", (plane_maxfuel))
+
+    # Päivitä pelaajan rahatilanne
+    pelaaja.raha = new_balance
+
+    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti lentokoneen {plane_id}!", "new_balance": new_balance})
+    
+
 
 @app.route('/newday', methods=['GET'])
 def uusi_paiva():
