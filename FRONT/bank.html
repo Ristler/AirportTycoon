@@ -22,11 +22,11 @@
                 <ul>
                     
 
-
-                        <li style="color:antiquewhite" id="player"></li>
-                        <li style="color:antiquewhite" id="money"></li>
-                        <li style="color: antiquewhite;" id="loans"></li>
-
+                    <li style="color:antiquewhite" id="player"></li>
+                    <li style="color:antiquewhite" id="money"></li>
+                    <li style="color: antiquewhite;" id="loans"></li>
+                    <li style="color: antiquewhite;" id="days"></li>
+                    <li style="color: antiquewhite;" id="loanexpiration"></li>
                    
                 </ul>
             </nav>
@@ -36,10 +36,19 @@
 
                     <div style="align-items: center;">
                         <form style="text-align: center;" method="POST" id="authform">
-                            <p>Lainan korko on 20%, ja eräpäivä 7pvn päästä</p>
+                            <p>Lainan korko on 20%, ja aikaa maksaa 7 päivää</p>
                             <label style="color:aliceblue" for="loanamount">Loan amount:</label>
                             <input type="number" id="loan" name="loanamount" required><br><br>
                             <input type="button" onclick="bank(event)" value="Apply for a loan">
+                          </form>
+
+                    </div>
+
+                    <div style="align-items: center;">
+                        <form style="text-align: center;" method="POST" id="authform">
+                            <label style="color:aliceblue" for="paymentamount">Payment amount:</label>
+                            <input type="number" id="payment" name="paymentamount" required><br><br>
+                            <input type="button" onclick="paybackLoan(event)" value="Pay back loan">
                           </form>
 
                     </div>

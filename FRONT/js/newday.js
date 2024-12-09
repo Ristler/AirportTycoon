@@ -5,5 +5,7 @@ async function newday(){
     if(response.ok){
         const vastaus = await response.json();
         console.log(vastaus);
+        const LocalClass = JSON.parse(localStorage.getItem("class"));
+
     }
 }

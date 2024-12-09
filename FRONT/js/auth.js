@@ -37,7 +37,7 @@ async function handleLogin(event) {
             
 
             localStorage.setItem("class", JSON.stringify(result));
-            
+            console.log(localStorage.getItem("class"));
             //kun haluat hakea classii (localstorage.getitem) muista käyttää json.parsee
             /*localStorage.setItem("userId", result.id)
             localStorage.setItem("username", result.user)

@@ -3,20 +3,25 @@
 //LOCALSTORAGE NEEDS TO BE UPDATED WHEN USER BUYS STUFF
 //IF PLANE DOESN'T HAVE ENOUGH FUEL TO FLY, FIX ERROR CAUSING CRASH.
 //ADD REFUELING 
-
+function local_info_update(){
 //Gets user id and name from localstorage. -> saved in auth.js
 const userLocal = JSON.parse(localStorage.getItem("class")).user
 const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
 const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
+const daysLocal = JSON.parse(localStorage.getItem("class")).Päivä
+const loanexpirationLocal = JSON.parse(localStorage.getItem("class")).Eräpäivä
 
-
-//Audio
-const flySound = new Audio("../audio/fly.mp3")
 
 //Navbar user info
 const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
 const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
 const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
+const days = document.querySelector("#days").innerHTML = "Days: "+ daysLocal 
+const loansexpiration = document.querySelector("#loanexpiration").innerHTML = "Loan expiration: "+ loanexpirationLocal
+}
+local_info_update();
+//audio for plane flight
+const flySound = new Audio("../audio/fly.mp3")
 
 //Basic map
 const map = L.map('map', { tap: false });
@@ -25,7 +30,19 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
   subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
 }).addTo(map);
 map.setView([60.3, 24.9], 7);
-
+async function newday(){
+  const response = await fetch('/newday');
+  if(response.ok){
+      const vastaus = await response.json();
+      const LocalClass = JSON.parse(localStorage.getItem("class"));
+      LocalClass.raha = vastaus["rahanmäärä"];
+      LocalClass.Päivä = vastaus["uusi_päivä"];
+      localStorage.setItem("class", JSON.stringify(LocalClass));
+      local_info_update();
+      location.reload();
+      console.log(vastaus);
+  }
+}
 
 //This functions triggers the map animation
 function fly(latid, long, duration, sound) {

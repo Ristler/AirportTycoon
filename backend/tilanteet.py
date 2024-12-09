@@ -54,19 +54,9 @@ MYRSKY TULOSSA!! ET VOI LENTÄÄ KOLMEEN SEURAAVAAN PÄIVÄÄN'''
         valittu_tilanne = tilanteet[random.randint(0,2)]
         return valittu_tilanne
 
-@app.route('/achievements', methods=['GET'])
 
-def fetch_achievements():
-    
-    player_id = request.args.get('id', type=int)
-    sql = f'SELECT * FROM achievements WHERE pelaaja_id = {player_id}'
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    return jsonify(results)
-    
 
 def first_flight(id=None):
-    print('jotain  dkdkdkkdkdöasjfölaskdfjöalskdfjöalskdjföalskdfjölaskdf')
 
     sql = f'SELECT taken FROM achievements WHERE id = {id} and name = "ekalento"'
     cursor.execute(sql)
