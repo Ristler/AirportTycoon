@@ -20,4 +20,13 @@ MYRSKY TULOSSA!! ET VOI LENTÄÄ KOLMEEN SEURAAVAAN PÄIVÄÄN''')
         tilanteet = [self.myrsky,self.erikois_vierailija, self.valtion_tuet]
         return tilanteet[random.randint(0,2)](id)
 
-tilanteet().valitse_tilanne(12)
+
+sql3 = f"INSERT INTO achievements (id, name, tracker, taken, description) VALUES 
+        ({pelaaja.id}, 'ekalento', 0, False, 'Successfully complete your first flight.'),
+        ({pelaaja.id}, 'frequent_flyer', 0, False, 'Complete 20 flights.'),
+	    ({pelaaja.id}, 'packed_planes', 0, False, 'Fill a plane to 100% capacity for the first time.'),
+	    ({pelaaja.id}, 'millionare', 0, False, 'Earn $1,000,000 in total revenue.'),
+	    ({pelaaja.id}, 'smoothoperation', 0, False, 'Go 15 days without any canceled flights.'),
+	    ({pelaaja.id}, 'debt_free', 0, False, 'Fully repay your first loan.'),
+	    ({pelaaja.id}, 'airport_tycoon', 0, False, 'Own 10 planes .')"
+cursor.execute(sql3)

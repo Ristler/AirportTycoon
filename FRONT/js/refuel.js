@@ -1,6 +1,6 @@
 async function haeLentokoneet() {
-    const response = await fetch('/planes');
-    const lentokoneLista = document.getElementById('planes');
+    const response = await fetch('/listaa_lentokoneet');
+    const lentokoneLista = document.getElementById('refuel');
     lentokoneLista.innerHTML = '';
 
     if (response.ok) {
@@ -12,10 +12,17 @@ async function haeLentokoneet() {
             article.textContent = `ID: ${plane.id}, Type: ${plane.tyyppi}, Capacity: ${plane.kapasiteetti},
             Price: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
 
+            const repairNappi = document.createElement('button');
+            repairNappi.textContent = 'Repair';
+            repairNappi.onclick = () => repair(plane.id);
+            article.appendChild(repairNappi);
+
             const refuelNappi = document.createElement('button');
-            refuelNappi.textContent = 'Osta';
+            refuelNappi.textContent = 'Refuel';
             refuelNappi.onclick = () => refuel(plane.id);
             article.appendChild(refuelNappi);
+            
+            
             lentokoneLista.appendChild(article);
             
 
@@ -38,4 +45,15 @@ async function refuel(planeId) {
     haeLentokoneet()
 }
 
+
+async function repair(planeId) {
+    const response = await fetch('/repair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plane_id: planeId })
+    });
+    const data = await response.json();
+    alert(data.message)
+    haeLentokoneet()
+}
 haeLentokoneet()

@@ -37,6 +37,12 @@ function fly(latid, long, duration, sound) {
 }
 
 
+
+
+
+
+
+
 async function listaaLentokoneet() {
   const response = await fetch('/listaa_lentokoneet');
 
@@ -67,7 +73,6 @@ async function listaaLentokoneet() {
 
 async function valitseLentokone(planeId, lentokoneLista) {
   lentokoneLista.innerHTML = '';
-
   const response = await fetch('/prepare', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -76,35 +81,36 @@ async function valitseLentokone(planeId, lentokoneLista) {
   const data = await response.json();
   const latitude = data["latitude"];
   const longitude = data['longitude'];
+  const bensankulutus = data["bensan kulutus"];
   fly(latitude, longitude, 8, true);
-  await new Promise(r => setTimeout(r, 10000));
+  await new Promise(r => setTimeout(r, 8000));
+  ticketprice(bensankulutus);
   let x = confirm('lensit xyz lipunhinta xyz')
   if (x == true) {
-    fly(60.3, 24.9, 0, false);
+    fly(60.3, 24.9, 0.1, false);
 }
 
 
-//Delete maybe no use for this anymore
-async function xFunction(event) {
-  event.preventDefault();
+async function ticketprice(bensankulutus) {
+  const lipunhinta = prompt("Lipun hinta?");
 
-  try{
-  const response = await fetch('http://127.0.0.1:5000/ListaaLentokoneet', {
-    method: 'POST',
-    body: localStorage.getItem("class").id
-});
-  const result = await JSON.parse(response.json());
-  if(response.ok){
+  const response = await fetch('/ticketprice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      //body: JSON.stringify({ lipunhinta: pelaajanhinta, varatutpaikat: paikka, tyytyvaisyys: Tyytyväisyys, planebrokey: plane_brokey, newbalance: new_balance})
+      body: JSON.stringify({ lipunhinta: lipunhinta, bensankulutus:bensankulutus})
+  });
+ 
+  
+  const data = await response.json();
+ 
+  const varatutpaikka = data['paikka'];
 
-      console.log("LISTAALENTOKONE TESTI", result);
-   } else {
-          alert(result.message); 
-      }
-  } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again later.');
 
-  }
+
+  console.log("testiiiiii", data)
+
+
 }
 
 async function ostaLentokone(event) {

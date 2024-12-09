@@ -7,12 +7,13 @@ import mysql.connector
 import json
 from flask import Flask, request, Response, jsonify, redirect, render_template
 import tilanteet
+from tilanteet import (first_flight, Frequent_Flyer, packed_planes, millionares, smooth_operation, debt_free, airport_tycoon)
+
 import math
 tilanteet = tilanteet.tilanteet()
 
 from flask_cors import CORS
 
-#### old code pieces for hindsight is 2020 type beat
 lentokone = {
    "id" : 0,
    "tyyppi" : "",
@@ -27,7 +28,6 @@ lentokone = {
 
 global Onkolennetty
 Onkolennetty = False
-
 
 
 ##YHDISTÄÄ FRONTIIN FOLDERIIN ETTII SIELT HTML
@@ -96,28 +96,28 @@ def createplayer():
     username = request.form['username']
     if not isNameTaken(username):
         password_input = request.form['password']
-        sql = "INSERT INTO `pelaaja` (nimi, salasana) VALUES (%s, %s)"
-        cursor.execute(sql, (username, password_input))
+        sql = "INSERT INTO `pelaaja` (nimi, salasana,raha, päivä, laina) VALUES (%s, %s,0, %s, 0)"
+        cursor.execute(sql, (username, password_input, date.today()))
         sql2 = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
         cursor.execute(sql2, (username, password_input))
         results = cursor.fetchall()
         for row in results:
                     global pelaaja
                     pelaaja = User(row[0],row[1],row[2],row[3],row[4],row[5],row[7])
+        sql3 = f"""INSERT INTO achievements (id, name, tracker, taken, description) VALUES 
+            ({pelaaja.id}, 'ekalento', 0, False, 'Successfully complete your first flight.'),
+            ({pelaaja.id}, 'frequent_flyer', 0, False, 'Complete 20 flights.'),
+            ({pelaaja.id}, 'packed_planes', 0, False, 'Fill a plane to 100% capacity for the first time.'),
+            ({pelaaja.id}, 'millionare', 0, False, 'Earn $1,000,000 in total revenue.'),
+            ({pelaaja.id}, 'smoothoperation', 0, False, 'Go 15 days without any canceled flights.'),
+            ({pelaaja.id}, 'debt_free', 0, False, 'Fully repay your first loan.'),
+            ({pelaaja.id}, 'airport_tycoon', 0, False, 'Own 10 planes .')"""
+        cursor.execute(sql3)
         return jsonify({"user": pelaaja.nimi , "id":pelaaja.id, "raha": pelaaja.raha,
                         "laina":pelaaja.laina, "Eräpäivä": pelaaja.erapaiva, "Päivä":pelaaja.paiva,
-                        "rating": pelaaja.rating})
+                        "rating": pelaaja.rating})        
         
 
-    sql3 = {f"INSERT INTO achievements (id, name, taken, description) VALUES 
-        ({pelaaja.id}, 'ekalento', False, 'Successfully complete your first flight.'),
-        ({pelaaja.id}, 'frequent_flyer', False, 'Complete 20 flights.'),
-	    ({pelaaja.id}, 'packed_planes', False, 'Fill a plane to 100% capacity for the first time.'),
-	    ({pelaaja.id}, 'millionare', False, 'Earn $1,000,000 in total revenue.'),
-	    ({pelaaja.id}, 'smoothoperation', False, 'Go 15 days without any canceled flights.'),
-	    ({pelaaja.id}, 'debt_free', False, 'Fully repay your first loan.'),
-	    ({pelaaja.id}, 'airport_tycoon', False, 'Own 10 planes .')"}
-    cursor.execute(sql3)
     
     if isNameTaken(username):
         return jsonify({"message": "Username is already taken"}), 400
@@ -179,21 +179,24 @@ def Tulostus(data):
             print("\u2560"+ line+ "\u2563")
     print("\u255a" + line + "\u255d")
 
+#testiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing
+
+
 
 
 ##TODO THIS IS URGENT
 @app.route('/prepare', methods=['POST'])
 
 def prepare():
-
+    
     data = request.json
     lentokone_id = data.get("plane_id")
-    print("TESTIIIIIIII", lentokone_id)
+    #print("TESTIIIIIIII", lentokone_id)
     sql = (f"select lentokone.id, lentokone.tyyppi, lentokone.kapasiteetti, lentokone_inventory.kunto, lentokone.hinta, lentokone_inventory.fuel, lentokone.efficiency from lentokone INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id  WHERE lentokone_inventory.lentokone_id = {lentokone_id} and lentokone_inventory.pelaaja_id = {pelaaja.id}")
     cursor.execute(sql)
     resultss = cursor.fetchall() #resultssssssssssssssssssssssss
                 #return jsonify(resultss)
-    print(resultss)
+    #print(resultss)
 
     for row in resultss:
         lentokone["id"] = row[0]
@@ -204,30 +207,17 @@ def prepare():
         lentokone["bensa"] = row[5]
         lentokone["efficiency"] = row[6]
     json_paketti = {}
+    
+
+    if first_flight(pelaaja.id) == True:
+        print("kävi läpi")
+
     print("Matkustajat nousevat koneeseen..")
-    määränpää,bensa = Haetaanmaaranpaa(lentokone["bensa"], lentokone["efficiency"])
+    global bensa
+    määränpää, bensa = Haetaanmaaranpaa(lentokone["bensa"], lentokone["efficiency"])
     if(määränpää == 0):
         return jsonify("määränpäätä ei saatu")
-    json_paketti.update({"Bensankulutus:": bensa})
 
-    indeksi = 0
-    tyytyväisyys = pelaaja.rating
-    paikka = 0
-    lipunhinta = 200
-    while indeksi < lentokone["määrä"]:
-        randomi = random.random()
-        if tyytyväisyys >= randomi:
-            paikka += 1
-        indeksi += 1
-    json_paketti.update({"Varatut paikat" : paikka})
-    #if planebrokey(lentokone, paikka, pelaaja.id) == False:
-    rahat = pelaaja.raha + lipunhinta * paikka
-
-    sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = {pelaaja.id}"
-    pelaaja.raha = rahat
-    cursor.execute(sql)
-    json_paketti.update({"plane brokey" : False})
-    json_paketti.update({"new_balance" : pelaaja.raha+lipunhinta*paikka})
     #else:
     #    json_paketti.update({"plane brokey" : True})
     #    return
@@ -236,7 +226,7 @@ def prepare():
     uusibensa = lentokone["bensa"] - bensa
     lentokone["bensa"] = uusibensa
     
-    print(uusibensa)
+   # print(uusibensa)
     json_paketti.update({"bensan kulutus" : bensa})
     json_paketti.update({"latitude" : määränpää[1]})
     json_paketti.update({"longitude": määränpää[2]})
@@ -248,13 +238,49 @@ def prepare():
     #sql = f"UPDATE lentokone_inventory set saapumispvm = {lentokone['saapumispvm']} where lentokone_id = {lentokone['id']}"
     #cursor.execute(sql)
     Onkolennetty = True
-    print("JSON PAKETTI PREPARESSA:", json_paketti)
+    print("JSON PAKETI CONFIRMISSA", json_paketti)
     return jsonify(json_paketti)
     #lentomatka(lentokone)
-def prepare_confirm():
-    data = request.json
     
-    pass
+
+
+@app.route('/ticketprice', methods=["POST"])
+def ticket_price():
+    data = request.json
+    pelaajanhinta = data["lipunhinta"]
+    bensa = data["bensankulutus"]
+    json_paketti = {}
+    indeksi = 0
+    paikka = 0
+    lipunhinta = 5*bensa
+    print(bensa)
+    if int(pelaajanhinta) > lipunhinta:
+        pelaaja.rating -= 0.05
+
+    elif pelaajanhinta < lipunhinta:
+        pelaaja.rating += 0.05
+
+    json_paketti.update({"Tyytyväisyys": pelaaja.rating})
+    tyytyväisyys = pelaaja.rating
+    while indeksi < lentokone["määrä"]:
+        randomi = random.random()
+        if tyytyväisyys >= randomi:
+            paikka += 1
+        indeksi += 1
+    json_paketti.update({"Varatut paikat" : paikka, "lipunhinta": pelaajanhinta})
+    #if planebrokey(lentokone, paikka, pelaaja.id) == False:
+    rahat = pelaaja.raha + lipunhinta * paikka
+
+    sql = f"UPDATE pelaaja SET raha = {rahat} WHERE id = {pelaaja.id}"
+    pelaaja.raha = rahat
+    cursor.execute(sql, multi=True)
+    json_paketti.update({"plane_brokey" : False})
+    json_paketti.update({"new_balance" : pelaaja.raha+lipunhinta*paikka})
+    print("JSON PAKETTI PREPARE CONFIRMISSA: ", json_paketti)
+    return jsonify(json_paketti)
+
+
+
 
 
 def Haetaanmaaranpaa(bensa, efficiency):
@@ -595,27 +621,78 @@ def refuel():
     plane_id = data.get("plane_id")
     
     # Tarkista, löytyykö lentokone ja pelaajalla varaa ostaa
-    cursor.execute("SELECT maxfuel FROM lentokone WHERE id = %s", (plane_id,))
+    #aw hell naw fk sql
+    cursor.execute("""
+        SELECT lentokone.maxfuel, lentokone_inventory.fuel
+        FROM lentokone
+        INNER JOIN lentokone_inventory ON lentokone.id = lentokone_inventory.lentokone_id
+        WHERE lentokone_inventory.lentokone_id = %s AND lentokone_inventory.pelaaja_id = %s
+    """, (plane_id, pelaaja.id))
     plane = cursor.fetchone()
-    plane1 = str(plane_id)
-    if not plane:
-        return jsonify({"message": "Lentokonetta ei löytynyt.Id on "+plane1}), 404
 
     
-    plane_maxfuel = plane[0]
+    plane_maxfuel, plane_fuel = plane
+    refuel_amount = plane_maxfuel - plane_fuel
+    fuel_price = 2
+    price = refuel_amount * fuel_price
 
+    if pelaaja.raha < price:
+        return jsonify({"message": "Köyhät rahat ei riitä!"}), 400
+    if refuel_amount == 0:
+        return jsonify({"message": "Lentokonetta ei tarvitsee tankkaa"}), 200
 
-    # Päivitä pelaajan rahat ja lisää kauppa inventoryyn
-    fuel_price = 0
-    new_balance = pelaaja.raha - fuel_price
+    new_balance = pelaaja.raha - price
     cursor.execute("UPDATE pelaaja SET raha = %s WHERE id = %s", (new_balance, pelaaja.id))
-    cursor.execute("UPDATE lentokone_inventory SET fuel = %s", (plane_maxfuel))
-
-    # Päivitä pelaajan rahatilanne
+    cursor.execute("""
+        UPDATE lentokone_inventory
+        SET fuel = %s
+        WHERE lentokone_id = %s AND pelaaja_id = %s
+    """, (plane_maxfuel, plane_id, pelaaja.id))
     pelaaja.raha = new_balance
 
-    return jsonify({"message": f"Pelaaja {pelaaja.nimi} onnistuneesti osti lentokoneen {plane_id}!", "new_balance": new_balance})
+    return jsonify({
+        "message": f"Pelaaja {pelaaja.nimi} onnistuneesti tankkasi lentokoneen {plane_id}!",
+        "new_balance": new_balance
+    })
+
+@app.route('/repair', methods=['POST'])
+def repair():
+    if not pelaaja:  # Varmista, että pelaaja on kirjautuneena
+        return jsonify({"message": "Pelaaja ei ole kirjautunut."}), 401
+
+    data = request.json
+    plane_id = data.get("plane_id")
     
+    # Tarkista, löytyykö lentokone ja pelaajalla varaa ostaa
+    cursor.execute("""
+        SELECT kunto from lentokone_inventory WHERE lentokone_id = %s AND pelaaja_id = %s
+    """, (plane_id, pelaaja.id))
+    plane = cursor.fetchone()
+    print(plane)
+    
+    kunto = plane[0]
+    repair_amount = 100 - kunto
+    price = repair_amount * 50
+
+    if pelaaja.raha < price:
+        return jsonify({"message": "Köyhät rahat ei riitä!"}), 400
+    if repair_amount == 0:
+        return jsonify({"message": "Lentokonetta ei tarvitsee korjaa"}), 200
+    
+    new_balance = pelaaja.raha - price
+    cursor.execute("UPDATE pelaaja SET raha = %s WHERE id = %s", (new_balance, pelaaja.id))
+    cursor.execute("""
+        UPDATE lentokone_inventory
+        SET kunto = %s
+        WHERE lentokone_id = %s AND pelaaja_id = %s
+    """, (100, plane_id, pelaaja.id))
+    pelaaja.raha = new_balance
+
+    return jsonify({
+        "message": f"Pelaaja {pelaaja.nimi} onnistuneesti korjasi lentokoneen {plane_id}!",
+        "new_balance": new_balance
+    }), 600
+
 
 
 @app.route('/newday', methods=['GET'])
@@ -633,7 +710,22 @@ def uusi_paiva():
     
     #ota tää pois kun olet korjannut Otalainaa() ja Tarkistalainaa()
     #konkurssi variable tarkistaa onko lentokenttämennyt konkurssiin
-    viesti,konkurssi = tarkistalaina()
+    if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
+        viesti = "sinulla ei ole velkaa"
+        konkurssi = False
+    if pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
+        #palauttaa json_pakettiin stringin joka menee takasin uusi_paiva funktioon
+        viesti = "|||||tänään on viimeinen päivä maksaa lainat pois!|||||"
+        konkurssi = False
+    elif pelaaja.paiva > pelaaja.erapaiva and pelaaja.laina > 0:
+        cursor.execute(f"delete from achievements where id = {pelaaja.id}")
+        cursor.execute(f"delete from kauppa_inventory where pelaaja_id = {pelaaja.id}")
+        cursor.execute(f"delete from lentokone_inventory where pelaaja_id = {pelaaja.id}")
+        cursor.execute(f"delete from pelaaja where id = {pelaaja.id}")
+        viesti = "et pystynyt maksaa lainaa pois. peli päättyy" 
+        konkurssi = True
+        #lisää tähän kommenot jossa poistetaan koko käyttäjä
+
     if (konkurssi == True):
         return jsonify(viesti)
     json_paketti.append(viesti)
@@ -699,101 +791,42 @@ def uusi_paiva():
 
 
 #lainaa saa vertaamalla tyytyväisyyden määrää ja eräpäivä on 2 viikkoa
-#@app.route('/otalainaa', methods=['GET'])
+@app.route('/otalainaa', methods=['POST'])
 def Otalainaa():
+    data = request.form['loan']
+    laina = int(data)
+    print(data)
     tyytyväisyys = pelaaja.rating
-    maksimi = 500000 * tyytyväisyys
+
     #pitää muokkaa että se toimii frontendin kanssa
     #laina = int(input(f"Olet valtuutettu lainaamaan enintään:{maksimi} Euroa. \n paljonko otat lainaa?:"))
-    if pelaaja.erapaiva == None and laina <= maksimi:
+
+    if pelaaja.erapaiva == None:
         pelaaja.laina = laina * 1.2
-        pelaaja.erapaiva = pelaaja.paiva + timedelta(days=14)
+        pelaaja.erapaiva = pelaaja.paiva + timedelta(days=7)
         pelaaja.raha = pelaaja.raha + laina
+        sql = f"UPDATE pelaaja SET laina = {laina}, raha = raha + {laina}, eräpäivä = '{pelaaja.erapaiva}' WHERE id = {pelaaja.id}"
+
+        cursor.execute(sql)
         return jsonify(f"Lainaa on maksettavana(+ korot): {laina*1.2} \n Lainan eräpäivä on: {pelaaja.erapaiva}")
-    elif laina > maksimi:
-        return jsonify("et ole valtuutettu liian isoon summaan")
     else:
-        return jsonify (f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.", False)
+        return jsonify (f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.")
 
 
 
 #tarkistaa ja maksaa lainan
-#@app.route('/tarkistalaina', methods=['GET'])
+@app.route('/tarkistalaina', methods=['GET'])
 def tarkistalaina():
 
-    if pelaaja.erapaiva is None or pelaaja.erapaiva  == '0000-00-00':
-        return ("sinulla ei ole velkaa", False)
-    if pelaaja.paiva == pelaaja.erapaiva and pelaaja.laina > 0:
-        #palauttaa json_pakettiin stringin joka menee takasin uusi_paiva funktioon
-        return "|||||tänään on viimeinen päivä maksaa lainat pois!|||||"
-    elif pelaaja.paiva > pelaaja.erapaiva and pelaaja.laina > 0:
-        cursor.execute(f"delete from achievements where id = {pelaaja.id}")
-        cursor.execute(f"delete from kauppa_inventory where pelaaja_id = {pelaaja.id}")
-        cursor.execute(f"delete from lentokone_inventory where pelaaja_id = {pelaaja.id}")
-        cursor.execute(f"delete from pelaaja where id = {pelaaja.id}")
-        return ("et pystynyt maksaa lainaa pois. peli päättyy", True)
-        #lisää tähän kommenot jossa poistetaan koko käyttäjä
-
     if pelaaja.raha > 0 and pelaaja.laina > 0:
-        maara = (pelaaja.laina if pelaaja.raha >= pelaaja.laina else pelaaja.raha)
+        maara = inputfromplayer
+        #maara = (pelaaja.laina if pelaaja.raha >= pelaaja.laina else pelaaja.raha)
         pelaaja.laina -= maara
         pelaaja.raha -= maara
         cursor.execute(f"update pelaaja set (raha = raha - {maara}, laina = laina - {maara}) where id = {pelaaja.id}")
         return(f"Pankki velotti tililtäsi {maara} euroa, sinulla on nyt {pelaaja.laina} euroa maksamatta", False)
 
-# def interface():
-#     temp = vars(pelaaja)
-#     for item in temp:
-#         print(temp[item])
-#     while(True):
-#         pelaaja.paiva += timedelta(days=1)
-#         print("Tänään on: ", pelaaja.paiva)
-#         tarkistalaina()
-#         sql = f"select lentokone_id, saapumispvm from lentokone_inventory where pelaaja_id = {pelaaja.id}"
-#         cursor.execute(sql)
-#         results = cursor.fetchall()
-#         for lentokone in results:
-#             kone = getPlane(lentokone[0])
-#             if lentokone[1]-1 == 0:
-#                 print("Kone", kone[0], " on saapunut lentokentälle")
-#             if lentokone[1]  > 0:
-#                 pvm = lentokone[1]
-#                 pvm -= 1
-#                 sql = f"UPDATE lentokone_inventory SET saapumispvm = {pvm} WHERE pelaaja_id = {pelaaja.id} and lentokone_id = {lentokone[0]}"
-#                 cursor.execute(sql)
 
-#         while(True):
-#             print("USER INTERFACE RAHA: ", pelaaja.raha)
-#             print("")
-#             print("Lennä (1)")
-#             print("Osta lentokone (2)")
-#             print("Osta kauppa (3)")
-#             print("Hae pankista lainaa(4)")
-#             print("Siirry toiseen päivään (5)")
-#             print("Kokeile tilanteita (6) (testausta)")
-#             print("Lopeta peli (0)")
-#             print("")
-#             inputti = str(input("Valintasi:"))
-
-#             match inputti:
-#                 case "1":
-#                     prepare()
-#                 case "2":
-#                     OstaLentokone()
-#                 case "3":
-#                     osta_kauppa(pelaaja.id)
-#                 case "4":
-#                     Otalainaa()
-#                 case "5":
-
-#                     break
-#                 case "6":
-#                     tilanteet.erikois_vierailija(pelaaja)
-#                 case "0":
-#                     sql = f"update pelaaja set raha = {pelaaja.raha},laina = {pelaaja.laina},eräpäivä = '{pelaaja.erapaiva}',päivä = '{pelaaja.paiva}'  ,rating = {pelaaja.rating} where id = {pelaaja.id}"
-#                     cursor.execute(sql)
-#                     cursor.close()
-#                     exit()
 
 if __name__ == '__main__':
     app.run(use_reloader=True, host='127.0.0.1', port=5000)
