@@ -258,7 +258,7 @@ def prepare():
     sql = f"UPDATE lentokone_inventory set saapumispvm = {lentokone['saapumispvm']} where lentokone_id = {lentokone['id']}"
     cursor.execute(sql)
     Onkolennetty = True
-    print("JSON PAKETI CONFIRMISSA", json_paketti)
+    print("JSON PAKETI PREPISSÄ", json_paketti)
     return jsonify(json_paketti)
     #lentomatka(lentokone)
     
@@ -322,7 +322,7 @@ def Haetaanmaaranpaa(bensa, efficiency):
     #    if(gd((latitude,longitude),(country[1],country[2])).km <= MatkaKM):
     #        print(MatkaKM - gd((latitude,longitude),(country[1],country[2])).km)
     #        suodatut_maat.append(country)
-
+    print("Maiden määrä ", len(suodatut_maat))
     valittu_maa = suodatut_maat[random.randint(0,len(suodatut_maat))]
 
     bensankulutus = (gd((latitude,longitude),(valittu_maa[1],valittu_maa[2])).km * efficiency)/3.84
@@ -762,7 +762,8 @@ def uusi_paiva():
     for lentokone in results:
         kone = getPlane(lentokone[0])
         if lentokone[1]-1 == 0:
-            json_paketti.update({f"Kone f{kone[1]} on saapunut lentokentälle"})
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAA", kone)
+            json_paketti.update({ kone[0] : f"Kone {str(kone[0])} on saapunut lentokentälle"})
 
         if lentokone[1]  > 0:
             pvm = lentokone[1]
@@ -793,7 +794,7 @@ def uusi_paiva():
         print(new_desc)
         uus_tilanne_pvm = random.randint(7,12)
         cursor.execute(f'update tilanteet set pvm = {uus_tilanne_pvm} where pelaaja_id={pelaaja.id}')
-
+    print(json_paketti)
     return jsonify(json_paketti)
 
 

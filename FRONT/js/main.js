@@ -10,7 +10,6 @@ function local_info_update(){
   const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
   const daysLocal = JSON.parse(localStorage.getItem("class")).Päivä
   const loanexpirationLocal = JSON.parse(localStorage.getItem("class")).Eräpäivä
-
 //Navbar user info
   const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
   const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
@@ -29,6 +28,10 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
   subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
 }).addTo(map);
 map.setView([60.3, 24.9], 7);
+
+
+
+
 async function newday(){
   const response = await fetch('/newday');
   if(response.ok){
@@ -100,15 +103,12 @@ async function valitseLentokone(planeId, lentokoneLista) {
   const bensankulutus = data["bensan kulutus"];
   const kohde = data["kohde"];
   fly(latitude, longitude, 8, true);
-  await new Promise(r => setTimeout(r, 500));
-  const data2 = ticketprice(bensankulutus);
-  let x = confirm('määränpää: ' + kohde + '\nlipunhinta: ' + data2["lipunhinta"] + '\ntyytväisyys: ' + data2["Tyytyväisyys"]);
-  if (x == true) {
-    fly(60.3, 24.9, 0.1, false);
-}
+  await new Promise(r => setTimeout(r, 8000));
+  ticketprice(bensankulutus,kohde);
 
 
-async function ticketprice(bensankulutus) {
+
+async function ticketprice(bensankulutus,kohde) {
   const lipunhinta = prompt("Lipun hinta?");
 
   const response = await fetch('/ticketprice', {
@@ -123,12 +123,16 @@ async function ticketprice(bensankulutus) {
  
   const varatutpaikka = data['paikka'];
 
-
-
+  let x = confirm('määränpää: ' + kohde + '\nlipunhinta: ' + data["lipunhinta"] + '\ntyytväisyys: ' + data["Tyytyväisyys"]);
+  if (x == true) {
+    fly(60.3, 24.9, 0.1, false);
+  }
   console.log("testiiiiii", data)
-  return data
-
+  return x
 }
+
+
+
 
 async function ostaLentokone(event) {
   event.preventDefault();
