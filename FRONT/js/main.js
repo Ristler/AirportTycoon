@@ -90,6 +90,8 @@ async function listaaLentokoneet() {
   }
 }
 
+
+
 async function valitseLentokone(planeId, lentokoneLista) {
   lentokoneLista.innerHTML = '';
   const response = await fetch('/prepare', {
@@ -98,6 +100,9 @@ async function valitseLentokone(planeId, lentokoneLista) {
       body: JSON.stringify({ plane_id: planeId })
   });
   const data = await response.json();
+  if(data["plane_brokey"] == True){
+    let y = alert("Lentokone meni rikki \nuusi balanssi: ")
+  }
   const latitude = data["latitude"];
   const longitude = data['longitude'];
   const bensankulutus = data["bensan kulutus"];
@@ -105,6 +110,7 @@ async function valitseLentokone(planeId, lentokoneLista) {
   fly(latitude, longitude, 8, true);
   await new Promise(r => setTimeout(r, 8000));
   ticketprice(bensankulutus,kohde);
+
 
 
 
