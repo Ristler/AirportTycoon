@@ -753,6 +753,8 @@ def uusi_paiva():
         print(new_desc)
         uus_tilanne_pvm = random.randint(7,12)
         cursor.execute(f'update tilanteet set pvm = {uus_tilanne_pvm} where pelaaja_id={pelaaja.id}')
+    json_paketti.update({"erapaiva" : pelaaja.erapaiva})
+    json_paketti.update({"laina" : pelaaja.laina})
     print(json_paketti)
     return jsonify(json_paketti)
 
@@ -779,12 +781,12 @@ def Otalainaa():
 
         cursor.execute(sql)
         response = {
-        "message": f"Lainaa on maksettavana(+ korot): {laina*1.2} \n Lainan eräpäivä on: {pelaaja.erapaiva}"
+        "message": f"Lainaa on maksettavana(+ korot): {laina*1.2} \n Lainan eräpäivä on: {pelaaja.erapaiva}",
+        "lainanmaara" : pelaaja.laina, "rahanmaara": pelaaja.raha, "erapaiva" : pelaaja.erapaiva
         }
         return jsonify(response)
     else:
-        response = {"message": f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen.",
-        "lainanmaara" : pelaaja.laina, "rahanmaara": pelaaja.raha, "erapaiva" : pelaaja.erapaiva}
+        response = {"message": f"Sinulla on vanhempaa lainaa {pelaaja.laina} euroa. et ole valtuutettu lainan ottamiseen."}
         return jsonify(response)
 
 

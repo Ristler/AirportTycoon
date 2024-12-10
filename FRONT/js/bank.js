@@ -47,7 +47,8 @@ async function bank() {
             LocalClass.laina = result.lainanmaara;
             LocalClass.Eräpäivä = result.erapaiva;
             localStorage.setItem("class", JSON.stringify(LocalClass));
-            alert(result.message + "\n print raha" + result.rahanmaara + "\n print laina" + result.lainanmaara + "\n print eräpäivä" + result.erapaiva);
+            console.log("testiiiii", result)
+            alert(result.message);
             
 
         } else {

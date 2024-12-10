@@ -29,7 +29,7 @@ async function fetchAchievements() {
             
             console.log(achievement.id);
            
-            img.src = `/assets/achievements/${achievement.name}.png`;
+            img.src = `./assets/achievements/${achievement.name}.png`;
             //img.src = `/assets/shops/2.png`;
             img.classList.add('achImg');
            

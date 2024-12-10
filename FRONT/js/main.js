@@ -44,6 +44,8 @@ async function newday(){
         const LocalClass = JSON.parse(localStorage.getItem("class"));
         LocalClass.raha = vastaus["rahanmäärä"];
         LocalClass.Päivä = vastaus["uusi_päivä"];
+        LocalClass.Eräpäivä = vastaus["erapaiva"];
+        LocalClass.laina = vastaus["laina"];
         localStorage.setItem("class", JSON.stringify(LocalClass));
         local_info_update();
         location.reload();
@@ -117,6 +119,7 @@ async function valitseLentokone(planeId, lentokoneLista) {
     LocalClass.raha = data["rahanmaara"];
     let y = alert("Plane broke either from random chance or due to durability being dogshit \nnew balance: " + data["rahanmaara"])
       LocalClass.Päivä = vastaus["uusi_päivä"];
+
       localStorage.setItem("class", JSON.stringify(LocalClass));
       local_info_update();
       location.reload();
