@@ -96,7 +96,7 @@ def createplayer():
     username = request.form['username']
     if not isNameTaken(username):
         password_input = request.form['password']
-        sql = "INSERT INTO `pelaaja` (nimi, salasana,raha, päivä, laina) VALUES (%s, %s,500000, %s, 0)"
+        sql = "INSERT INTO `pelaaja` (nimi, salasana,raha, päivä, laina) VALUES (%s, %s,0, %s, 0)"
         cursor.execute(sql, (username, password_input, date.today()))
 
         sql2 = "SELECT * FROM `pelaaja` WHERE nimi = %s AND salasana = %s"
@@ -806,7 +806,7 @@ def tarkistalaina():
         cursor.execute(f"update pelaaja set raha = {pelaaja.raha}, laina = {pelaaja.laina} where id = {pelaaja.id}")
         response = {
         "message": f"Pankki velotti tililtäsi {maksu} euroa, sinulla on nyt {pelaaja.laina} euroa maksamatta",
-        "success": False
+        "success": False, "rahanmaara": pelaaja.raha, "lainanmaara": pelaaja.laina
         }
         return jsonify(response)
     elif pelaaja.raha <= 0 or pelaaja.raha < maksu:

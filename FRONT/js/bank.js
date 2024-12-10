@@ -93,7 +93,6 @@ async function paybackLoan() {
             const LocalClass = JSON.parse(localStorage.getItem("class"));
             LocalClass.raha = result["rahanmaara"];
             LocalClass.laina = result["lainanmaara"];
-            LocalClass.Eräpäivä = result["erapaiva"];
             localStorage.setItem("class", JSON.stringify(LocalClass));
             window.location.replace('airporttycoon.html');
 
