@@ -1,20 +1,18 @@
-
-//Gets user id and name from localstorage. -> saved in auth.js
-const userLocal = JSON.parse(localStorage.getItem("class")).user
-const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
-const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
-const daysLocal = JSON.parse(localStorage.getItem("class")).Päivä
-const loanexpirationLocal = JSON.parse(localStorage.getItem("class")).Eräpäivä
-
-
-//Navbar user info
-const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
-const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
-const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
-const days = document.querySelector("#days").innerHTML = "Days: "+ daysLocal 
-const loansexpiration = document.querySelector("#loanexpiration").innerHTML = "Loan expiration: "+ loanexpirationLocal
-
-
+function local_info_update(){
+    //Gets user id and name from localstorage. -> saved in auth.js
+      const userLocal = JSON.parse(localStorage.getItem("class")).user
+      const moneyLocal = JSON.parse(localStorage.getItem("class")).raha
+      const lainaLocal = JSON.parse(localStorage.getItem("class")).laina
+      const daysLocal = JSON.parse(localStorage.getItem("class")).Päivä
+      const loanexpirationLocal = JSON.parse(localStorage.getItem("class")).Eräpäivä
+    //Navbar user info
+      const user = document.querySelector("#player").innerHTML = "Player: "+ userLocal
+      const money = document.querySelector("#money").innerHTML = "Money: "+ moneyLocal + "$"
+      const laina = document.querySelector("#loans").innerHTML = "Loans: "+ lainaLocal + "$"
+      const days = document.querySelector("#days").innerHTML = "Days: "+ daysLocal 
+      const loansexpiration = document.querySelector("#loanexpiration").innerHTML = "Loan expiration: "+ loanexpirationLocal
+    }
+    local_info_update();
 
 async function bank() {
     event.preventDefault();
@@ -44,10 +42,13 @@ async function bank() {
         if (response.ok) {
             //localStorage.setItem("loan")
             
+            const LocalClass = JSON.parse(localStorage.getItem("class"));
+            LocalClass.raha =  result.rahanmaara;
+            LocalClass.laina = result.lainanmaara;
+            LocalClass.Eräpäivä = result.erapaiva;
+            localStorage.setItem("class", JSON.stringify(LocalClass));
+            alert(result.message + "\n print raha" + result.rahanmaara + "\n print laina" + result.lainanmaara + "\n print eräpäivä" + result.erapaiva);
             
-            alert(result.message);
-           
-            window.location.replace('airporttycoon.html');
 
         } else {
             alert(result.message);
@@ -88,7 +89,11 @@ async function paybackLoan() {
             
             
             alert(result.message);
-           
+            const LocalClass = JSON.parse(localStorage.getItem("class"));
+            LocalClass.raha = result["rahanmaara"];
+            LocalClass.laina = result["lainanmaara"];
+            LocalClass.Eräpäivä = result["erapaiva"];
+            localStorage.setItem("class", JSON.stringify(LocalClass));
             window.location.replace('airporttycoon.html');
 
         } else {

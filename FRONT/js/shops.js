@@ -26,7 +26,7 @@ async function haeKaupat() {
         kaupat.forEach(kauppa => {
             const article = document.createElement('article');
             const img = document.createElement('img');
-            img.src = `/assets/${kauppa.id}.png`;
+            img.src = `/assets/shops/${kauppa.id}.png`;
             img.classList.add('shopsImg');
 
             article.classList.add('planeCard');

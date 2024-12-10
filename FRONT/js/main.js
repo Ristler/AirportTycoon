@@ -32,17 +32,23 @@ map.setView([60.3, 24.9], 7);
 
 
 
+
 async function newday(){
   const response = await fetch('/newday');
   if(response.ok){
       const vastaus = await response.json();
-      const LocalClass = JSON.parse(localStorage.getItem("class"));
-      LocalClass.raha = vastaus["rahanmäärä"];
-      LocalClass.Päivä = vastaus["uusi_päivä"];
-      localStorage.setItem("class", JSON.stringify(LocalClass));
-      local_info_update();
-      location.reload();
-      console.log(vastaus);
+      if(vastaus["viesti"] == "et pystynyt maksaa lainaa pois. peli päättyy"){
+        alert(vastaus["viesti"]);
+        window.location.replace('auth.html');
+      }else{
+        const LocalClass = JSON.parse(localStorage.getItem("class"));
+        LocalClass.raha = vastaus["rahanmäärä"];
+        LocalClass.Päivä = vastaus["uusi_päivä"];
+        localStorage.setItem("class", JSON.stringify(LocalClass));
+        local_info_update();
+        location.reload();
+        console.log(vastaus);
+      }
   }
 }
 
@@ -76,10 +82,11 @@ async function listaaLentokoneet() {
           article.classList.add('planeCard');
 
           article.textContent = `ID: ${plane.id}, Tyyppi: ${plane.tyyppi}, Kapasiteetti: ${plane.kapasiteetti},
-          Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Max fuel: ${plane.maxfuel}`;
+          Hinta: ${plane.hinta}, Efficiency: ${plane.efficiency}, Fuel: ${plane.fuel} Maxfuel: ${plane.maxfuel}, Kunto: ${plane.kunto}`;
           const valitseNappi = document.createElement('button');
           valitseNappi.textContent = 'Valitse';
           valitseNappi.onclick = () => valitseLentokone(plane.id, lentokoneLista);
+          article.style.fontWeight = "bold";
           article.appendChild(valitseNappi);
 
           lentokoneLista.appendChild(article);
@@ -100,9 +107,22 @@ async function valitseLentokone(planeId, lentokoneLista) {
       body: JSON.stringify({ plane_id: planeId })
   });
   const data = await response.json();
-  if(data["plane_brokey"] == true){
-    let y = alert("Lentokone meni rikki \nuusi balanssi: ")
+  if(data["varoitus"] == "eioo tarpeeks bensaa"){
+    alert("Ei ole tarpeeks bensaa");
+    return;
   }
+  if(data["plane_brokey"] == true){
+    console.log(data["rahanmaara"]);
+    const LocalClass = JSON.parse(localStorage.getItem("class"));
+    LocalClass.raha = data["rahanmaara"];
+    let y = alert("Plane broke either from random chance or due to durability being dogshit \nnew balance: " + data["rahanmaara"])
+      LocalClass.Päivä = vastaus["uusi_päivä"];
+      localStorage.setItem("class", JSON.stringify(LocalClass));
+      local_info_update();
+      location.reload();
+    return;
+  }
+
   const latitude = data["latitude"];
   const longitude = data['longitude'];
   const bensankulutus = data["bensan kulutus"];
@@ -129,16 +149,13 @@ async function ticketprice(bensankulutus,kohde) {
  
   const varatutpaikka = data['paikka'];
 
-  let x = confirm('määränpää: ' + kohde + '\nlipunhinta: ' + data["lipunhinta"] + '\ntyytväisyys: ' + data["Tyytyväisyys"]);
+  let x = confirm('Destination: ' + kohde + '\nTicketprice: ' + data["lipunhinta"] + '\nRating: ' + data["Tyytyväisyys"]);
   if (x == true) {
     fly(60.3, 24.9, 0.1, false);
   }
   console.log("testiiiiii", data)
   return x
 }
-
-
-
 
 async function ostaLentokone(event) {
   event.preventDefault();

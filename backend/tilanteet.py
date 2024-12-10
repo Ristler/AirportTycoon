@@ -127,6 +127,7 @@ def millionares(id=None):
         results = cursor.fetchall()
         if 1000000 <= results[0][0]:
             return True
+    return False
         
 def smooth_operation(id=None, broken=None):
     sql = f'SELECT taken FROM achievements WHERE id = {id} and name = "smoothoperation"'

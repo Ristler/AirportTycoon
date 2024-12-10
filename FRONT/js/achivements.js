@@ -23,11 +23,21 @@ async function fetchAchievements() {
     if (response.ok) {
         const achievements= await response.json();
         achievements.forEach(achievement => {
+            const img = document.createElement('img');
             const article = document.createElement('article');
+            let name = achievement.name;
+            
+            console.log(achievement.id);
+           
+            img.src = `/assets/achievements/${achievement.name}.png`;
+            //img.src = `/assets/shops/2.png`;
+            img.classList.add('achImg');
            
             article.textContent = `${achievement.description}`;
+  
 
             achlist.appendChild(article);
+            achlist.appendChild(img);
         });
     
     } else {
